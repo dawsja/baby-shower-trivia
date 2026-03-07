@@ -1,0 +1,114 @@
+@import "tailwindcss";
+
+:root {
+  --bg-0: #03264a;
+  --bg-1: #0c4c80;
+  --bg-2: #2b7bb8;
+  --bg-3: #84c5f4;
+  --text: #f8fbff;
+}
+
+@theme inline {
+  --font-sans: var(--font-body);
+}
+
+body {
+  min-height: 100%;
+  color: var(--text);
+  font-family: var(--font-body), sans-serif;
+  background: radial-gradient(circle at 20% 20%, #66c3ff 0%, transparent 38%),
+    radial-gradient(circle at 85% 25%, #2d9de0 0%, transparent 35%),
+    linear-gradient(170deg, var(--bg-0), var(--bg-1) 45%, var(--bg-2) 85%, var(--bg-3));
+  margin: 0;
+  overscroll-behavior-y: none;
+}
+
+html {
+  height: 100%;
+  background: var(--bg-0);
+}
+
+body {
+  height: 100%;
+  background-color: var(--bg-0);
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-heading), sans-serif;
+}
+
+.app-shell {
+  min-height: 100dvh;
+  width: 100%;
+  padding-top: calc(14px + env(safe-area-inset-top));
+  padding-right: calc(14px + env(safe-area-inset-right));
+  padding-bottom: calc(14px + env(safe-area-inset-bottom));
+  padding-left: calc(14px + env(safe-area-inset-left));
+  position: relative;
+  overflow: hidden;
+}
+
+.app-shell::before,
+.app-shell::after {
+  content: "";
+  position: absolute;
+  width: 240px;
+  height: 240px;
+  border-radius: 999px;
+  opacity: 0.25;
+  filter: blur(28px);
+  z-index: 0;
+}
+
+.app-shell::before {
+  background: #e0f2fe;
+  top: -70px;
+  right: -90px;
+  animation: drift 10s ease-in-out infinite;
+}
+
+.app-shell::after {
+  background: #bae6fd;
+  bottom: -80px;
+  left: -90px;
+  animation: drift 12s ease-in-out infinite reverse;
+}
+
+.card-glass {
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.1));
+  backdrop-filter: blur(14px);
+  box-shadow: 0 20px 50px rgba(1, 46, 86, 0.33);
+}
+
+.btn-primary {
+  border-radius: 18px;
+  padding: 12px 16px;
+  font-weight: 800;
+  color: #00315e;
+  background: linear-gradient(180deg, #f8fdff, #d8efff);
+  transition: transform 120ms ease, box-shadow 120ms ease;
+  box-shadow: 0 10px 22px rgba(0, 28, 57, 0.22);
+}
+
+.btn-primary:disabled {
+  opacity: 0.65;
+}
+
+.btn-primary:not(:disabled):active {
+  transform: translateY(1px) scale(0.995);
+}
+
+@keyframes drift {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(10px, -10px) scale(1.04);
+  }
+}
