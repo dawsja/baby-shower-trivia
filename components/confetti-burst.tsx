@@ -25,7 +25,7 @@ export function ConfettiBurst({ trigger }: ConfettiBurstProps) {
         "#22d3ee",
         "#34d399",
         "#facc15",
-        "#fb7185",
+        "#3b82f6",
         "#f97316",
         "#a78bfa",
         "#f8fafc",
