@@ -1,5 +1,5 @@
 import { seedQuestions } from "@/lib/questions";
-import type { GameRoom, Player, PlayerAnswer, PublicGameState } from "@/lib/types";
+import type { GamePhase, GameRoom, Player, PlayerAnswer, PublicGameState } from "@/lib/types";
 
 const ROOM_TTL_MS = 1000 * 60 * 60 * 6;
 const QUESTION_DURATION_MS = 20_000;
@@ -301,6 +301,51 @@ export function submitAnswer(code: string, playerId: string, optionIndex: number
   tickRoom(room);
 
   return buildPublicState(room, playerId);
+}
+
+export function leaveGame(code: string, playerId: string) {
+  const room = getRoomOrThrow(code);
+
+  room.players = room.players.filter((p) => p.id !== playerId);
+  room.updatedAt = now();
+
+  const activePhases: GamePhase[] = ["question_active", "revealing", "leaderboard"];
+  if (activePhases.includes(room.phase) && room.players.length === 0) {
+    room.phase = "cancelled";
+  }
+}
+
+export function resetGame(code: string, hostKey: string) {
+  const room = getRoomOrThrow(code);
+
+  if (room.hostKey !== hostKey) {
+    throw new Error("Only the host can reset the game");
+  }
+
+  if (room.phase !== "finished" && room.phase !== "cancelled") {
+    throw new Error("Game can only be reset after it has finished or been cancelled");
+  }
+
+  room.phase = "waiting";
+  room.players = room.players.map((p) => ({ ...p, score: 0 }));
+  room.currentQuestionIndex = 0;
+  room.currentAnswers = {};
+  room.questionStartedAt = null;
+  room.revealStartedAt = null;
+  room.leaderboardStartedAt = null;
+  room.updatedAt = now();
+
+  return buildPublicState(room, null, hostKey);
+}
+
+export function endGame(code: string, hostKey: string) {
+  const room = getRoomOrThrow(code);
+
+  if (room.hostKey !== hostKey) {
+    throw new Error("Only the host can end the game");
+  }
+
+  rooms.delete(code.toUpperCase());
 }
 
 export function goToNextQuestion(code: string, hostKey: string) {

@@ -333,6 +333,54 @@ export async function submitAnswer(code: string, playerId: string, optionIndex: 
   return buildPublicState(room, playerId);
 }
 
+export async function leaveGame(code: string, playerId: string) {
+  const room = await getRoomOrThrow(code);
+
+  room.players = room.players.filter((p) => p.id !== playerId);
+  room.updatedAt = now();
+
+  const activePhases: GameRoom["phase"][] = ["question_active", "revealing", "leaderboard"];
+  if (activePhases.includes(room.phase) && room.players.length === 0) {
+    room.phase = "cancelled";
+  }
+
+  await redis.set(`game:${code.toUpperCase()}`, JSON.stringify(room), { EX: Math.floor(ROOM_TTL_MS / 1000) });
+}
+
+export async function resetGame(code: string, hostKey: string) {
+  const room = await getRoomOrThrow(code);
+
+  if (room.hostKey !== hostKey) {
+    throw new Error("Only the host can reset the game");
+  }
+
+  if (room.phase !== "finished" && room.phase !== "cancelled") {
+    throw new Error("Game can only be reset after it has finished or been cancelled");
+  }
+
+  room.phase = "waiting";
+  room.players = room.players.map((p) => ({ ...p, score: 0 }));
+  room.currentQuestionIndex = 0;
+  room.currentAnswers = {};
+  room.questionStartedAt = null;
+  room.revealStartedAt = null;
+  room.leaderboardStartedAt = null;
+  room.updatedAt = now();
+
+  await redis.set(`game:${code.toUpperCase()}`, JSON.stringify(room), { EX: Math.floor(ROOM_TTL_MS / 1000) });
+  return buildPublicState(room, null, hostKey);
+}
+
+export async function endGame(code: string, hostKey: string) {
+  const room = await getRoomOrThrow(code);
+
+  if (room.hostKey !== hostKey) {
+    throw new Error("Only the host can end the game");
+  }
+
+  await redis.del(`game:${code.toUpperCase()}`);
+}
+
 export async function goToNextQuestion(code: string, hostKey: string) {
   const room = await getRoomOrThrow(code);
 

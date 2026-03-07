@@ -1,8 +1,8 @@
 "use client";
 
-import { useParams, useSearchParams } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Monitor, Play, Users, HelpCircle, Clock, CheckCircle2, Eye } from "lucide-react";
+import { Monitor, Play, Users, HelpCircle, Clock, CheckCircle2, Eye, RotateCcw, LogOut, XCircle } from "lucide-react";
 
 import { LeaderboardPanel } from "@/components/leaderboard-panel";
 import { Scoreboard } from "@/components/scoreboard";
@@ -12,6 +12,7 @@ import type { PublicGameState } from "@/lib/types";
 export default function HostRoomPage() {
   const params = useParams<{ code: string }>();
   const searchParams = useSearchParams();
+  const router = useRouter();
   const code = useMemo(() => params.code.toUpperCase(), [params.code]);
   const hostKey = searchParams.get("hostKey") ?? "";
 
@@ -89,6 +90,54 @@ export default function HostRoomPage() {
     } finally {
       setBusy(false);
     }
+  }
+
+  async function playAgain() {
+    if (!hostKey) return;
+
+    setBusy(true);
+    setError(null);
+
+    try {
+      const response = await fetch("/api/reset-game", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code, hostKey }),
+      });
+
+      const data = (await response.json()) as { state?: PublicGameState; error?: string };
+      if (!response.ok || !data.state) {
+        throw new Error(data.error ?? "Could not reset game");
+      }
+
+      setState(data.state);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not reset game");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function exitGame() {
+    if (!hostKey) return;
+
+    setBusy(true);
+    setError(null);
+
+    try {
+      await fetch("/api/end-game", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code, hostKey }),
+      });
+    } catch (err) {
+      // ignore errors — navigate home regardless
+      console.error("exitGame error:", err);
+    } finally {
+      setBusy(false);
+    }
+
+    router.push("/");
   }
 
   return (
@@ -172,6 +221,39 @@ export default function HostRoomPage() {
             phase={state.phase}
             autoAdvanceSeconds={Math.max(1, Math.ceil(state.timeRemainingMs / 1000))}
           />
+        )}
+
+        {state?.phase === "finished" && (
+          <div className="card-glass flex flex-col gap-3 p-5">
+            <button onClick={playAgain} disabled={busy} className="btn-primary w-full">
+              <RotateCcw className="h-4 w-4" />
+              {busy ? "Resetting..." : "Play Again"}
+            </button>
+            <button onClick={exitGame} disabled={busy} className="btn-secondary w-full">
+              <LogOut className="h-4 w-4" />
+              Exit
+            </button>
+          </div>
+        )}
+
+        {state?.phase === "cancelled" && (
+          <div className="card-glass p-5 text-center">
+            <p className="label-row justify-center text-xs tracking-widest">
+              <XCircle className="h-3.5 w-3.5 text-red-300" />
+              GAME CANCELLED
+            </p>
+            <p className="mt-1 text-xl font-bold text-white">All players left the game.</p>
+            <div className="mt-4 flex flex-col gap-3">
+              <button onClick={playAgain} disabled={busy} className="btn-primary w-full">
+                <RotateCcw className="h-4 w-4" />
+                {busy ? "Resetting..." : "Play Again"}
+              </button>
+              <button onClick={exitGame} disabled={busy} className="btn-secondary w-full">
+                <LogOut className="h-4 w-4" />
+                Exit
+              </button>
+            </div>
+          </div>
         )}
 
         {state && <Scoreboard players={state.leaderboard} activePlayerId={null} />}
