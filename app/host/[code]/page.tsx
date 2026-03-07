@@ -7,6 +7,7 @@ import { Monitor, Play, Users, HelpCircle, Clock, CheckCircle2, Eye, RotateCcw, 
 import { LeaderboardPanel } from "@/components/leaderboard-panel";
 import { Scoreboard } from "@/components/scoreboard";
 import { HostMusic } from "@/components/host-music";
+import { HowToJoinModal } from "@/components/how-to-join-modal";
 import type { PublicGameState } from "@/lib/types";
 
 const COUNTDOWN_UPDATE_INTERVAL_MS = 250;
@@ -22,6 +23,7 @@ export default function HostRoomPage() {
   const [state, setState] = useState<PublicGameState | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [showHowToJoin, setShowHowToJoin] = useState(false);
   const [displayTimeMs, setDisplayTimeMs] = useState(0);
   const phaseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const displayTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -222,6 +224,13 @@ export default function HostRoomPage() {
               <Play className="h-4 w-4" />
               {busy ? "Starting..." : "Start Game"}
             </button>
+            <button
+              onClick={() => setShowHowToJoin(true)}
+              className="btn-secondary mt-3 w-full"
+            >
+              <HelpCircle className="h-4 w-4" />
+              How to Join
+            </button>
           </div>
         )}
 
@@ -314,6 +323,10 @@ export default function HostRoomPage() {
         {!hostKey && <p className="text-center text-sm font-semibold text-red-600">Missing host key in URL.</p>}
         {error && <p className="text-center text-sm font-semibold text-red-600">{error}</p>}
       </div>
+
+      {showHowToJoin && (
+        <HowToJoinModal code={code} onClose={() => setShowHowToJoin(false)} />
+      )}
     </main>
   );
 }
