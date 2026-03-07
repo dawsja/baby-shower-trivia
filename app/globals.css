@@ -16,9 +16,6 @@ body {
   min-height: 100%;
   color: var(--text);
   font-family: var(--font-body), sans-serif;
-  background: radial-gradient(circle at 20% 20%, #66c3ff 0%, transparent 38%),
-    radial-gradient(circle at 85% 25%, #2d9de0 0%, transparent 35%),
-    linear-gradient(170deg, var(--bg-0), var(--bg-1) 45%, var(--bg-2) 85%, var(--bg-3));
   margin: 0;
   overscroll-behavior-y: none;
 }
@@ -49,6 +46,9 @@ h4 {
   padding-left: calc(14px + env(safe-area-inset-left));
   position: relative;
   overflow: hidden;
+  background: radial-gradient(circle at 20% 20%, #66c3ff 0%, transparent 38%),
+    radial-gradient(circle at 85% 25%, #2d9de0 0%, transparent 35%),
+    linear-gradient(170deg, var(--bg-0), var(--bg-1) 45%, var(--bg-2) 85%, var(--bg-3));
 }
 
 .app-shell::before,
