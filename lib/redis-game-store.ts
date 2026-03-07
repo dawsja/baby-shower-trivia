@@ -79,6 +79,14 @@ function tickRoom(room: GameRoom) {
       room.players.every((player) => room.currentAnswers[player.id] !== undefined);
 
     if (elapsed >= QUESTION_DURATION_MS || everyoneAnswered) {
+      // Update scores when transitioning to reveal phase
+      Object.values(room.currentAnswers).forEach((answer) => {
+        const player = room.players.find((p) => p.id === answer.playerId);
+        if (player && answer.isCorrect) {
+          player.score += answer.pointsAwarded;
+        }
+      });
+      
       room.phase = "revealing";
       room.revealStartedAt = currentTime;
       room.leaderboardStartedAt = null;
@@ -317,7 +325,7 @@ export async function submitAnswer(code: string, playerId: string, optionIndex: 
   };
 
   room.currentAnswers[playerId] = answer;
-  player.score += pointsAwarded;
+  // Don't update score here - scores are updated during reveal phase
   room.updatedAt = now();
   tickRoom(room);
 
