@@ -6,6 +6,7 @@ import { Monitor, Play, Users, HelpCircle, Clock, CheckCircle2, Eye } from "luci
 
 import { LeaderboardPanel } from "@/components/leaderboard-panel";
 import { Scoreboard } from "@/components/scoreboard";
+import { HostMusic } from "@/components/host-music";
 import type { PublicGameState } from "@/lib/types";
 
 export default function HostRoomPage() {
@@ -92,6 +93,12 @@ export default function HostRoomPage() {
 
   return (
     <main className="app-shell flex justify-center">
+      {/* Play music during active game phases */}
+      <HostMusic 
+        isPlaying={state?.phase === "question_active" || state?.phase === "revealing" || state?.phase === "leaderboard"} 
+        volume={0.15} 
+      />
+      
       <div className="relative z-10 mx-auto w-full max-w-3xl space-y-4">
         <header className="card-glass px-5 py-4 text-center">
           <p className="label-row justify-center text-xs tracking-[0.22em]">
