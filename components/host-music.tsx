@@ -7,43 +7,50 @@ type HostMusicProps = {
   volume?: number;
 };
 
-// Cheerful looping melody — major-key game show feel
+// Tense, ticking trivia countdown melody — builds urgency
+// Uses minor/suspended intervals for that "clock is ticking" feel
 const MELODY = [
-  // Bar 1
-  { note: 523.25, dur: 0.18 }, // C5
-  { note: 587.33, dur: 0.18 }, // D5
-  { note: 659.25, dur: 0.18 }, // E5
-  { note: 523.25, dur: 0.18 }, // C5
-  // Bar 2
-  { note: 698.46, dur: 0.18 }, // F5
-  { note: 783.99, dur: 0.36 }, // G5 (long)
-  { note: 0, dur: 0.12 },      // rest
-  // Bar 3
-  { note: 659.25, dur: 0.18 }, // E5
-  { note: 698.46, dur: 0.18 }, // F5
-  { note: 783.99, dur: 0.18 }, // G5
-  { note: 880.0, dur: 0.36 },  // A5 (long)
-  { note: 0, dur: 0.12 },      // rest
-  // Bar 4
-  { note: 783.99, dur: 0.18 }, // G5
-  { note: 659.25, dur: 0.18 }, // E5
-  { note: 523.25, dur: 0.36 }, // C5 (long)
-  { note: 0, dur: 0.24 },      // rest
-  // Bar 5
-  { note: 392.0, dur: 0.18 },  // G4
-  { note: 440.0, dur: 0.18 },  // A4
-  { note: 523.25, dur: 0.18 }, // C5
-  { note: 440.0, dur: 0.18 },  // A4
-  // Bar 6
-  { note: 523.25, dur: 0.18 }, // C5
-  { note: 659.25, dur: 0.36 }, // E5 (long)
-  { note: 0, dur: 0.12 },      // rest
-  // Bar 7
-  { note: 587.33, dur: 0.18 }, // D5
-  { note: 523.25, dur: 0.18 }, // C5
-  { note: 440.0, dur: 0.18 },  // A4
-  { note: 392.0, dur: 0.36 },  // G4 (long)
-  { note: 0, dur: 0.36 },      // rest (gap before loop)
+  // Tick-tock pulse intro
+  { note: 587.33, dur: 0.15 }, // D5 (tick)
+  { note: 0, dur: 0.10 },      // rest
+  { note: 440.0, dur: 0.15 },  // A4 (tock)
+  { note: 0, dur: 0.10 },      // rest
+  { note: 587.33, dur: 0.15 }, // D5
+  { note: 0, dur: 0.10 },      // rest
+  { note: 440.0, dur: 0.15 },  // A4
+  { note: 0, dur: 0.10 },      // rest
+
+  // Rising tension phrase
+  { note: 523.25, dur: 0.12 }, // C5
+  { note: 587.33, dur: 0.12 }, // D5
+  { note: 659.25, dur: 0.12 }, // E5
+  { note: 698.46, dur: 0.24 }, // F5 (hold)
+  { note: 0, dur: 0.08 },      // rest
+
+  // Tick-tock pulse
+  { note: 659.25, dur: 0.15 }, // E5
+  { note: 0, dur: 0.10 },      // rest
+  { note: 493.88, dur: 0.15 }, // B4
+  { note: 0, dur: 0.10 },      // rest
+  { note: 659.25, dur: 0.15 }, // E5
+  { note: 0, dur: 0.10 },      // rest
+  { note: 493.88, dur: 0.15 }, // B4
+  { note: 0, dur: 0.10 },      // rest
+
+  // Climax phrase — higher urgency
+  { note: 698.46, dur: 0.12 }, // F5
+  { note: 783.99, dur: 0.12 }, // G5
+  { note: 880.0, dur: 0.12 },  // A5
+  { note: 783.99, dur: 0.12 }, // G5
+  { note: 698.46, dur: 0.24 }, // F5 (hold)
+  { note: 0, dur: 0.08 },      // rest
+
+  // Descending resolve
+  { note: 659.25, dur: 0.12 }, // E5
+  { note: 587.33, dur: 0.12 }, // D5
+  { note: 523.25, dur: 0.12 }, // C5
+  { note: 493.88, dur: 0.30 }, // B4 (sustained)
+  { note: 0, dur: 0.30 },      // rest before loop
 ];
 
 const LOOP_DURATION_S = MELODY.reduce((sum, s) => sum + s.dur, 0);
@@ -64,11 +71,9 @@ export function HostMusic({ isPlaying, volume = 0.15 }: HostMusicProps) {
     return ctxRef.current;
   }, []);
 
-  // Listen for any user interaction to unlock AudioContext
+  // Unlock AudioContext on first user interaction
   useEffect(() => {
-    const unlock = () => {
-      ensureContext();
-    };
+    const unlock = () => ensureContext();
     document.addEventListener("click", unlock, { once: true });
     document.addEventListener("touchstart", unlock, { once: true });
     return () => {
@@ -83,31 +88,31 @@ export function HostMusic({ isPlaying, volume = 0.15 }: HostMusicProps) {
 
     for (const step of MELODY) {
       if (step.note > 0) {
-        // Lead voice — triangle wave
+        // Lead — square wave for that retro game-show bite
         const osc = ctx.createOscillator();
         const env = ctx.createGain();
-        osc.type = "triangle";
+        osc.type = "square";
         osc.frequency.value = step.note;
         osc.connect(env);
         env.connect(master);
         env.gain.setValueAtTime(0.001, t);
-        env.gain.linearRampToValueAtTime(0.12, t + 0.015);
+        env.gain.linearRampToValueAtTime(0.06, t + 0.01);
         env.gain.exponentialRampToValueAtTime(0.001, t + step.dur);
         osc.start(t);
         osc.stop(t + step.dur + 0.02);
 
-        // Soft sub-harmony one octave lower
-        const sub = ctx.createOscillator();
-        const subEnv = ctx.createGain();
-        sub.type = "sine";
-        sub.frequency.value = step.note / 2;
-        sub.connect(subEnv);
-        subEnv.connect(master);
-        subEnv.gain.setValueAtTime(0.001, t);
-        subEnv.gain.linearRampToValueAtTime(0.04, t + 0.015);
-        subEnv.gain.exponentialRampToValueAtTime(0.001, t + step.dur);
-        sub.start(t);
-        sub.stop(t + step.dur + 0.02);
+        // Soft tick layer — higher octave, very quiet, adds clock feel
+        const tick = ctx.createOscillator();
+        const tickEnv = ctx.createGain();
+        tick.type = "sine";
+        tick.frequency.value = step.note * 2;
+        tick.connect(tickEnv);
+        tickEnv.connect(master);
+        tickEnv.gain.setValueAtTime(0.001, t);
+        tickEnv.gain.linearRampToValueAtTime(0.015, t + 0.005);
+        tickEnv.gain.exponentialRampToValueAtTime(0.001, t + 0.06);
+        tick.start(t);
+        tick.stop(t + 0.08);
       }
       t += step.dur;
     }
@@ -115,7 +120,6 @@ export function HostMusic({ isPlaying, volume = 0.15 }: HostMusicProps) {
 
   // Start / stop music
   useEffect(() => {
-    // Clear any pending loop
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
       timeoutRef.current = null;
@@ -123,7 +127,6 @@ export function HostMusic({ isPlaying, volume = 0.15 }: HostMusicProps) {
 
     if (!isPlaying) {
       activeRef.current = false;
-      // Fade out
       if (gainRef.current && ctxRef.current && ctxRef.current.state === "running") {
         gainRef.current.gain.linearRampToValueAtTime(0, ctxRef.current.currentTime + 0.4);
       }

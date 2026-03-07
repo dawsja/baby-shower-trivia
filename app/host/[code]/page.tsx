@@ -93,9 +93,9 @@ export default function HostRoomPage() {
 
   return (
     <main className="app-shell flex justify-center">
-      {/* Play music during active game phases */}
+      {/* Play countdown music only while players are answering */}
       <HostMusic 
-        isPlaying={state?.phase === "question_active" || state?.phase === "revealing" || state?.phase === "leaderboard"} 
+        isPlaying={state?.phase === "question_active"} 
         volume={0.15} 
       />
       
