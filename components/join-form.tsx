@@ -3,7 +3,7 @@
 import { type FormEvent, useState } from "react";
 import { User, Smile, LogIn } from "lucide-react";
 
-const avatarOptions = ["👶", "🍼", "🧸", "🛻", "⚽", "🦕", "🎈", "🎵", "💙", "🩵", "🍓", "🌟", "🦢", "🐰", "🌙", "☁️", "🌈", "🍯", "🥕", "🌸", "🦋", "🍎", "🧺", "🪀", "🦖", "�", "🦆", "🐣", "🌻", "🍊"];
+const avatarOptions = ["👶", "🍼", "🧸", "🛻", "🏈", "🦕", "💙", "🎈"];
 
 type JoinFormProps = {
   onSubmit: (payload: { name: string; avatar: string }) => Promise<void>;
