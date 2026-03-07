@@ -52,10 +52,10 @@ export default function Home() {
     <main className="app-shell flex items-center justify-center">
       <div className="relative z-10 mx-auto w-full max-w-md space-y-4">
         <div className="text-center">
-          <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-rose-100 backdrop-blur-sm">
-            <Baby className="h-7 w-7 text-rose-500" />
+          <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-blue-100 backdrop-blur-sm">
+            <Baby className="h-7 w-7 text-blue-500" />
           </div>
-          <p className="text-xs font-bold tracking-[0.28em] text-rose-600">BABY SHOWER QUIZ</p>
+          <p className="text-xs font-bold tracking-[0.28em] text-blue-600">BABY SHOWER QUIZ</p>
           <h1 className="mt-2 text-4xl font-black tracking-wide text-slate-800">Bailey&apos;s Baby Shower Trivia</h1>
           <p className="mt-2 text-sm text-slate-600">Join the game, answer fast, and climb the leaderboard.</p>
         </div>
@@ -66,11 +66,11 @@ export default function Home() {
             {busy ? "Creating..." : "Create Game (Host Screen)"}
           </button>
 
-          <p className="text-center text-xs font-semibold text-rose-600">
+          <p className="text-center text-xs font-semibold text-blue-600">
             Host screen runs on TV/tablet and does not submit answers.
           </p>
 
-          <div className="h-px bg-rose-200" />
+          <div className="h-px bg-blue-200" />
 
           <div>
             <p className="label-row">
@@ -98,7 +98,7 @@ export default function Home() {
                   type="button"
                   onClick={() => setAvatar(item)}
                   className={`rounded-xl border px-2 py-2 text-2xl transition ${
-                    avatar === item ? "border-rose-400 bg-rose-100 shadow-md" : "border-rose-200 bg-rose-50 hover:bg-rose-100"
+                    avatar === item ? "border-blue-400 bg-blue-100 shadow-md" : "border-blue-200 bg-blue-50 hover:bg-blue-100"
                   }`}
                 >
                   {item}

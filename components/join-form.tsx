@@ -61,8 +61,8 @@ export function JoinForm({ onSubmit, initialName = "", initialAvatar = "👶" }:
                 onClick={() => setAvatar(item)}
                 className={`rounded-2xl border px-2 py-3 text-2xl transition ${
                   selected
-                    ? "border-rose-400 bg-rose-100 shadow-md"
-                    : "border-rose-200 bg-rose-50 hover:bg-rose-100"
+                    ? "border-blue-400 bg-blue-100 shadow-md"
+                    : "border-blue-200 bg-blue-50 hover:bg-blue-100"
                 }`}
               >
                 {item}
