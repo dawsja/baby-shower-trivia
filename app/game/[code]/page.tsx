@@ -176,6 +176,13 @@ export default function GameRoomPage() {
     setState(data.state);
   }
 
+  useEffect(() => {
+    if (state?.phase === "cancelled") {
+      window.localStorage.removeItem(keyForPlayer(code));
+      router.push("/");
+    }
+  }, [state?.phase, code, router]);
+
   async function leaveGame() {
     if (!playerId) return;
 
