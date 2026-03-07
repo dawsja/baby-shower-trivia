@@ -26,6 +26,9 @@ function keyForPlayer(code: string) {
   return `baby-shower:${code}:player-id`;
 }
 
+const COUNTDOWN_UPDATE_INTERVAL_MS = 250;
+const PHASE_TRANSITION_BUFFER_MS = 500;
+
 export default function GameRoomPage() {
   const params = useParams<{ code: string }>();
   const searchParams = useSearchParams();
@@ -37,8 +40,11 @@ export default function GameRoomPage() {
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [confettiPulse, setConfettiPulse] = useState(0);
+  const [displayTimeMs, setDisplayTimeMs] = useState(0);
   const lastPhaseRef = useRef<string>("");
   const autoJoinAttemptedRef = useRef(false);
+  const phaseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const displayTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const initialName = searchParams.get("name") ?? "";
   const initialAvatar = searchParams.get("avatar") ?? "👶";
@@ -60,6 +66,7 @@ export default function GameRoomPage() {
     [code],
   );
 
+  // Restore player from localStorage and load initial state
   useEffect(() => {
     const stored = window.localStorage.getItem(keyForPlayer(code));
     if (stored) {
@@ -72,19 +79,93 @@ export default function GameRoomPage() {
     }
   }, [code, refreshGameState]);
 
+  // SSE connection for real-time game state updates
   useEffect(() => {
-    if (!playerId) {
+    if (!playerId) return;
+
+    const url = `/api/game-events?code=${code}&playerId=${encodeURIComponent(playerId)}`;
+    const es = new EventSource(url);
+
+    es.onmessage = (event) => {
+      try {
+        const payload = JSON.parse(event.data as string) as { state?: PublicGameState; error?: string };
+        if (payload.state) {
+          setState(payload.state);
+        } else if (payload.error) {
+          setError(payload.error);
+        }
+      } catch {
+        // ignore parse errors
+      }
+    };
+
+    es.onerror = () => {
+      setError("Lost connection");
+      es.close();
+    };
+
+    return () => es.close();
+  }, [playerId, code]);
+
+  // Client-side countdown for smooth timer display
+  useEffect(() => {
+    if (displayTimerRef.current !== null) {
+      clearInterval(displayTimerRef.current);
+      displayTimerRef.current = null;
+    }
+
+    if (!state || state.timeRemainingMs <= 0) {
+      setDisplayTimeMs(0);
       return;
     }
 
-    const interval = window.setInterval(() => {
-      refreshGameState(playerId).catch((err) => {
-        setError(err instanceof Error ? err.message : "Lost connection");
-      });
-    }, 1200);
+    const receivedAt = Date.now();
+    setDisplayTimeMs(state.timeRemainingMs);
 
-    return () => window.clearInterval(interval);
-  }, [playerId, refreshGameState]);
+    displayTimerRef.current = setInterval(() => {
+      const elapsed = Date.now() - receivedAt;
+      const remaining = Math.max(0, state.timeRemainingMs - elapsed);
+      setDisplayTimeMs(remaining);
+      if (remaining <= 0 && displayTimerRef.current !== null) {
+        clearInterval(displayTimerRef.current);
+        displayTimerRef.current = null;
+      }
+    }, COUNTDOWN_UPDATE_INTERVAL_MS);
+
+    return () => {
+      if (displayTimerRef.current !== null) {
+        clearInterval(displayTimerRef.current);
+        displayTimerRef.current = null;
+      }
+    };
+  }, [state?.phase, state?.timeRemainingMs]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // One-shot timer to trigger a server-side tick when a timed phase expires.
+  // This calls /api/game-state which runs tickRoom on the server, publishes
+  // the phase transition via Redis pub/sub, and the SSE stream delivers the
+  // updated state to all connected clients.
+  useEffect(() => {
+    if (phaseTimerRef.current !== null) {
+      clearTimeout(phaseTimerRef.current);
+      phaseTimerRef.current = null;
+    }
+
+    if (!state || !playerId || state.timeRemainingMs <= 0) return;
+
+    phaseTimerRef.current = setTimeout(() => {
+      fetch(`/api/game-state?code=${code}&playerId=${encodeURIComponent(playerId)}`, {
+        method: "GET",
+        cache: "no-store",
+      }).catch(console.error);
+    }, state.timeRemainingMs + PHASE_TRANSITION_BUFFER_MS);
+
+    return () => {
+      if (phaseTimerRef.current !== null) {
+        clearTimeout(phaseTimerRef.current);
+        phaseTimerRef.current = null;
+      }
+    };
+  }, [state?.phase, state?.timeRemainingMs, playerId, code]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (!state) {
@@ -242,7 +323,7 @@ export default function GameRoomPage() {
               questionNumber={state.currentQuestionIndex + 1}
               totalQuestions={state.totalQuestions}
               question={state.question}
-              timeRemainingMs={state.timeRemainingMs}
+              timeRemainingMs={displayTimeMs}
               selectedAnswer={state.yourAnswerIndex}
               onAnswer={submitAnswer}
             />
@@ -314,3 +395,4 @@ export default function GameRoomPage() {
     </main>
   );
 }
+

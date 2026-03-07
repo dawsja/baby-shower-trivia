@@ -1,13 +1,16 @@
 "use client";
 
 import { useParams, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Monitor, Play, Users, HelpCircle, Clock, CheckCircle2, Eye, RotateCcw, LogOut, XCircle } from "lucide-react";
 
 import { LeaderboardPanel } from "@/components/leaderboard-panel";
 import { Scoreboard } from "@/components/scoreboard";
 import { HostMusic } from "@/components/host-music";
 import type { PublicGameState } from "@/lib/types";
+
+const COUNTDOWN_UPDATE_INTERVAL_MS = 250;
+const PHASE_TRANSITION_BUFFER_MS = 500;
 
 export default function HostRoomPage() {
   const params = useParams<{ code: string }>();
@@ -19,47 +22,97 @@ export default function HostRoomPage() {
   const [state, setState] = useState<PublicGameState | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [displayTimeMs, setDisplayTimeMs] = useState(0);
+  const phaseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const displayTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const refreshGameState = useCallback(async () => {
-    if (!hostKey) {
+  // SSE connection for real-time game state updates
+  useEffect(() => {
+    if (!hostKey) return;
+
+    const url = `/api/game-events?code=${code}&hostKey=${encodeURIComponent(hostKey)}`;
+    const es = new EventSource(url);
+
+    es.onmessage = (event) => {
+      try {
+        const payload = JSON.parse(event.data as string) as { state?: PublicGameState; error?: string };
+        if (payload.state) {
+          setState(payload.state);
+        } else if (payload.error) {
+          setError(payload.error);
+        }
+      } catch {
+        // ignore parse errors
+      }
+    };
+
+    es.onerror = () => {
+      setError("Lost connection");
+      es.close();
+    };
+
+    return () => es.close();
+  }, [hostKey, code]);
+
+  // Client-side countdown for smooth timer display
+  useEffect(() => {
+    if (displayTimerRef.current !== null) {
+      clearInterval(displayTimerRef.current);
+      displayTimerRef.current = null;
+    }
+
+    if (!state || state.timeRemainingMs <= 0) {
+      setDisplayTimeMs(0);
       return;
     }
 
-    const response = await fetch(
-      `/api/game-state?code=${code}&hostKey=${encodeURIComponent(hostKey)}`,
-      {
+    const receivedAt = Date.now();
+    setDisplayTimeMs(state.timeRemainingMs);
+
+    displayTimerRef.current = setInterval(() => {
+      const elapsed = Date.now() - receivedAt;
+      const remaining = Math.max(0, state.timeRemainingMs - elapsed);
+      setDisplayTimeMs(remaining);
+      if (remaining <= 0 && displayTimerRef.current !== null) {
+        clearInterval(displayTimerRef.current);
+        displayTimerRef.current = null;
+      }
+    }, COUNTDOWN_UPDATE_INTERVAL_MS);
+
+    return () => {
+      if (displayTimerRef.current !== null) {
+        clearInterval(displayTimerRef.current);
+        displayTimerRef.current = null;
+      }
+    };
+  }, [state?.phase, state?.timeRemainingMs]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // One-shot timer to trigger a server-side tick when a timed phase expires.
+  // This calls /api/game-state which runs tickRoom on the server, publishes
+  // the phase transition via Redis pub/sub, and the SSE stream delivers the
+  // updated state to all connected clients.
+  useEffect(() => {
+    if (phaseTimerRef.current !== null) {
+      clearTimeout(phaseTimerRef.current);
+      phaseTimerRef.current = null;
+    }
+
+    if (!hostKey || !state || state.timeRemainingMs <= 0) return;
+
+    phaseTimerRef.current = setTimeout(() => {
+      fetch(`/api/game-state?code=${code}&hostKey=${encodeURIComponent(hostKey)}`, {
         method: "GET",
         cache: "no-store",
-      },
-    );
-    const payload = (await response.json()) as { state?: PublicGameState; error?: string };
+      }).catch(console.error);
+    }, state.timeRemainingMs + PHASE_TRANSITION_BUFFER_MS);
 
-    if (!response.ok || !payload.state) {
-      throw new Error(payload.error ?? "Could not load game state");
-    }
-
-    setState(payload.state);
-  }, [code, hostKey]);
-
-  useEffect(() => {
-    refreshGameState().catch((err) => {
-      setError(err instanceof Error ? err.message : "Could not connect to room");
-    });
-  }, [refreshGameState]);
-
-  useEffect(() => {
-    if (!hostKey) {
-      return;
-    }
-
-    const interval = window.setInterval(() => {
-      refreshGameState().catch((err) => {
-        setError(err instanceof Error ? err.message : "Lost connection");
-      });
-    }, 1200);
-
-    return () => window.clearInterval(interval);
-  }, [hostKey, refreshGameState]);
+    return () => {
+      if (phaseTimerRef.current !== null) {
+        clearTimeout(phaseTimerRef.current);
+        phaseTimerRef.current = null;
+      }
+    };
+  }, [state?.phase, state?.timeRemainingMs, hostKey, code]); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function startGame() {
     if (!hostKey) {
@@ -181,7 +234,7 @@ export default function HostRoomPage() {
               </span>
               <span className="flex items-center gap-1">
                 <Clock className="h-4 w-4" />
-                {Math.max(1, Math.ceil(state.timeRemainingMs / 1000))}s
+                {Math.max(1, Math.ceil(displayTimeMs / 1000))}s
               </span>
             </div>
             <h2 className="mt-3 text-3xl font-black text-white">{state.question.text}</h2>
@@ -264,3 +317,4 @@ export default function HostRoomPage() {
     </main>
   );
 }
+
