@@ -12,7 +12,7 @@ function rankBadge(index: number) {
   if (index === 0) return "badge-rank badge-rank-1";
   if (index === 1) return "badge-rank badge-rank-2";
   if (index === 2) return "badge-rank badge-rank-3";
-  return "badge-rank bg-sky-100 text-sky-700";
+  return "badge-rank bg-rose-100 text-rose-700";
 }
 
 export function LeaderboardPanel({ players, phase, autoAdvanceSeconds }: LeaderboardPanelProps) {
@@ -39,7 +39,7 @@ export function LeaderboardPanel({ players, phase, autoAdvanceSeconds }: Leaderb
               "flex items-center justify-between rounded-2xl border px-3 py-3 animate-fade-in-up",
               index === 0 && phase === "finished"
                 ? "border-amber-400/50 bg-amber-400/15"
-                : "border-sky-200 bg-white"
+                : "border-rose-200 bg-white"
             )}
             style={{ animationDelay: `${index * 80}ms` }}
           >
@@ -59,7 +59,7 @@ export function LeaderboardPanel({ players, phase, autoAdvanceSeconds }: Leaderb
       </div>
 
       {phase !== "finished" && (
-        <p className="mt-5 flex items-center justify-center gap-1.5 text-center text-sm font-semibold text-sky-700">
+        <p className="mt-5 flex items-center justify-center gap-1.5 text-center text-sm font-semibold text-rose-700">
           <Timer className="h-3.5 w-3.5" />
           Next question starts automatically in {autoAdvanceSeconds}s...
         </p>

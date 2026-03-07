@@ -310,7 +310,7 @@ export default function GameRoomPage() {
         {!playerId && (
           <>
             <JoinForm onSubmit={handleJoin} initialName={initialName} initialAvatar={initialAvatar} />
-            {busy && <p className="text-center text-sm text-sky-700">Joining game...</p>}
+            {busy && <p className="text-center text-sm text-rose-700">Joining game...</p>}
           </>
         )}
 
@@ -336,7 +336,7 @@ export default function GameRoomPage() {
             />
 
             {state.hasAnswered && (
-              <div className="card-glass flex items-center justify-center gap-2 p-3 text-center text-sm font-semibold text-sky-700">
+              <div className="card-glass flex items-center justify-center gap-2 p-3 text-center text-sm font-semibold text-rose-700">
                 <Lock className="h-3.5 w-3.5" />
                 Answer locked in.
               </div>
