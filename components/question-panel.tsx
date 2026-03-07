@@ -11,10 +11,10 @@ type QuestionPanelProps = {
 };
 
 const letterColors = [
-  "bg-sky-400/30 text-sky-100",
-  "bg-violet-400/30 text-violet-100",
-  "bg-amber-400/30 text-amber-100",
-  "bg-emerald-400/30 text-emerald-100",
+  "bg-sky-100 text-sky-700",
+  "bg-violet-100 text-violet-700",
+  "bg-amber-100 text-amber-700",
+  "bg-emerald-100 text-emerald-700",
 ];
 
 export function QuestionPanel({
@@ -30,7 +30,7 @@ export function QuestionPanel({
 
   return (
     <div className="card-glass p-4">
-      <div className="mb-3 flex items-center justify-between text-xs font-semibold tracking-widest text-sky-100">
+      <div className="mb-3 flex items-center justify-between text-xs font-semibold tracking-widest text-sky-700">
         <span className="flex items-center gap-1.5">
           <HelpCircle className="h-3.5 w-3.5" />
           QUESTION {questionNumber}/{totalQuestions}
@@ -41,19 +41,19 @@ export function QuestionPanel({
         </span>
       </div>
 
-      <div className="mb-3 h-2 overflow-hidden rounded-full bg-white/20">
+      <div className="mb-3 h-2 overflow-hidden rounded-full bg-sky-100">
         <div
           className={cn(
             "h-full rounded-full transition-all",
             progress > 30
-              ? "bg-gradient-to-r from-cyan-200 to-sky-100"
+              ? "bg-gradient-to-r from-sky-400 to-cyan-300"
               : "bg-gradient-to-r from-amber-300 to-red-300"
           )}
           style={{ width: `${progress}%` }}
         />
       </div>
 
-      <h2 className="text-xl font-bold leading-snug text-white">{question.text}</h2>
+      <h2 className="text-xl font-bold leading-snug text-slate-800">{question.text}</h2>
 
       <div className="mt-4 grid gap-3">
         {question.options.map((option, index) => {
@@ -66,8 +66,8 @@ export function QuestionPanel({
               className={cn(
                 "flex items-center gap-3 rounded-2xl border px-4 py-3 text-left text-sm font-semibold transition",
                 selected
-                  ? "border-white bg-white text-sky-800"
-                  : "border-white/30 bg-white/10 text-white hover:bg-white/20"
+                  ? "border-sky-500 bg-sky-500 text-white"
+                  : "border-sky-200 bg-white text-slate-700 hover:bg-sky-50"
               )}
             >
               <span className={cn("badge-rank text-[11px]", letterColors[index] ?? letterColors[0])}>

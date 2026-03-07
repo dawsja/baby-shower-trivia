@@ -52,12 +52,12 @@ export default function Home() {
     <main className="app-shell flex items-center justify-center">
       <div className="relative z-10 mx-auto w-full max-w-md space-y-4">
         <div className="text-center">
-          <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-white/15 backdrop-blur-sm">
-            <Baby className="h-7 w-7 text-sky-200" />
+          <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-sky-100 backdrop-blur-sm">
+            <Baby className="h-7 w-7 text-sky-500" />
           </div>
-          <p className="text-xs font-bold tracking-[0.28em] text-sky-100">BABY SHOWER QUIZ</p>
-          <h1 className="mt-2 text-4xl font-black tracking-wide text-white">Bailey&apos;s Baby Shower Trivia</h1>
-          <p className="mt-2 text-sm text-sky-100">Join the game, answer fast, and climb the leaderboard.</p>
+          <p className="text-xs font-bold tracking-[0.28em] text-sky-600">BABY SHOWER QUIZ</p>
+          <h1 className="mt-2 text-4xl font-black tracking-wide text-slate-800">Bailey&apos;s Baby Shower Trivia</h1>
+          <p className="mt-2 text-sm text-slate-600">Join the game, answer fast, and climb the leaderboard.</p>
         </div>
 
         <section className="card-glass space-y-4 p-5">
@@ -66,11 +66,11 @@ export default function Home() {
             {busy ? "Creating..." : "Create Game (Host Screen)"}
           </button>
 
-          <p className="text-center text-xs font-semibold text-sky-100">
+          <p className="text-center text-xs font-semibold text-sky-600">
             Host screen runs on TV/tablet and does not submit answers.
           </p>
 
-          <div className="h-px bg-white/25" />
+          <div className="h-px bg-sky-200" />
 
           <div>
             <p className="label-row">
@@ -98,7 +98,7 @@ export default function Home() {
                   type="button"
                   onClick={() => setAvatar(item)}
                   className={`rounded-xl border px-2 py-2 text-2xl transition ${
-                    avatar === item ? "border-white bg-white/35 shadow-md" : "border-white/25 bg-white/10 hover:bg-white/20"
+                    avatar === item ? "border-sky-400 bg-sky-100 shadow-md" : "border-sky-200 bg-sky-50 hover:bg-sky-100"
                   }`}
                 >
                   {item}
@@ -127,7 +127,7 @@ export default function Home() {
             </div>
           </div>
 
-          {error && <p className="text-center text-sm font-semibold text-red-100">{error}</p>}
+          {error && <p className="text-center text-sm font-semibold text-red-600">{error}</p>}
         </section>
       </div>
     </main>
