@@ -23,6 +23,18 @@ if (!redis.isOpen) {
 
 redis.on('error', (err) => console.error('Redis Client Error', err));
 
+export function gameEventChannel(code: string) {
+  return `game-events:${code.toUpperCase()}`;
+}
+
+async function publishGameUpdate(code: string): Promise<void> {
+  try {
+    await redis.publish(gameEventChannel(code), 'update');
+  } catch (err) {
+    console.error('Failed to publish game update:', err);
+  }
+}
+
 function now() {
   return Date.now();
 }
@@ -69,8 +81,9 @@ function sortPlayers(players: Player[]) {
   });
 }
 
-function tickRoom(room: GameRoom) {
+function tickRoom(room: GameRoom): boolean {
   const currentTime = now();
+  const phaseBefore = room.phase;
 
   if (room.phase === "question_active" && room.questionStartedAt) {
     const elapsed = currentTime - room.questionStartedAt;
@@ -121,6 +134,8 @@ function tickRoom(room: GameRoom) {
       room.updatedAt = currentTime;
     }
   }
+
+  return room.phase !== phaseBefore;
 }
 
 async function getRoomOrThrow(code: string): Promise<GameRoom> {
@@ -137,8 +152,13 @@ async function getRoomOrThrow(code: string): Promise<GameRoom> {
     throw new Error("Game room not found");
   }
   
-  tickRoom(room);
+  const phaseChanged = tickRoom(room);
   await redis.set(`game:${code}`, JSON.stringify(room), { EX: Math.floor(ROOM_TTL_MS / 1000) });
+
+  if (phaseChanged) {
+    await publishGameUpdate(code);
+  }
+
   return room;
 }
 
@@ -239,6 +259,7 @@ export async function joinGame(code: string, name: string, avatar?: string) {
   room.updatedAt = now();
 
   await redis.set(`game:${code}`, JSON.stringify(room), { EX: Math.floor(ROOM_TTL_MS / 1000) });
+  await publishGameUpdate(code);
 
   return {
     player,
@@ -275,6 +296,7 @@ export async function startGame(code: string, hostKey: string) {
   room.updatedAt = now();
 
   await redis.set(`game:${code}`, JSON.stringify(room), { EX: Math.floor(ROOM_TTL_MS / 1000) });
+  await publishGameUpdate(code);
   return buildPublicState(room, null, hostKey);
 }
 
@@ -330,6 +352,7 @@ export async function submitAnswer(code: string, playerId: string, optionIndex: 
   tickRoom(room);
 
   await redis.set(`game:${code}`, JSON.stringify(room), { EX: Math.floor(ROOM_TTL_MS / 1000) });
+  await publishGameUpdate(code);
   return buildPublicState(room, playerId);
 }
 
@@ -345,6 +368,7 @@ export async function leaveGame(code: string, playerId: string) {
   }
 
   await redis.set(`game:${code.toUpperCase()}`, JSON.stringify(room), { EX: Math.floor(ROOM_TTL_MS / 1000) });
+  await publishGameUpdate(code);
 }
 
 export async function resetGame(code: string, hostKey: string) {
@@ -368,6 +392,7 @@ export async function resetGame(code: string, hostKey: string) {
   room.updatedAt = now();
 
   await redis.set(`game:${code.toUpperCase()}`, JSON.stringify(room), { EX: Math.floor(ROOM_TTL_MS / 1000) });
+  await publishGameUpdate(code);
   return buildPublicState(room, null, hostKey);
 }
 
@@ -399,6 +424,7 @@ export async function goToNextQuestion(code: string, hostKey: string) {
     room.phase = "finished";
     room.updatedAt = now();
     await redis.set(`game:${code}`, JSON.stringify(room), { EX: Math.floor(ROOM_TTL_MS / 1000) });
+    await publishGameUpdate(code);
     return buildPublicState(room, null, hostKey);
   }
 
@@ -411,5 +437,6 @@ export async function goToNextQuestion(code: string, hostKey: string) {
   room.updatedAt = now();
 
   await redis.set(`game:${code}`, JSON.stringify(room), { EX: Math.floor(ROOM_TTL_MS / 1000) });
+  await publishGameUpdate(code);
   return buildPublicState(room, null, hostKey);
 }
