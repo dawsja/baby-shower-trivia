@@ -371,7 +371,7 @@ export default function GameRoomPage() {
           <LeaderboardPanel
             players={state.leaderboard}
             phase={state.phase}
-            autoAdvanceSeconds={Math.max(1, Math.ceil(state.timeRemainingMs / 1000))}
+            autoAdvanceSeconds={Math.max(1, Math.ceil(displayTimeMs / 1000))}
           />
         )}
 
