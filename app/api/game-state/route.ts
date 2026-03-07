@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-import { getGameState } from "@/lib/game-store";
+import { getGameState } from "@/lib/redis-game-store";
 
 export async function GET(request: Request) {
   try {

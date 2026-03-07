@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-import { startGame } from "@/lib/game-store";
+import { startGame } from "@/lib/redis-game-store";
 
 export async function POST(request: Request) {
   try {

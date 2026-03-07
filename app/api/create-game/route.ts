@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-import { createGame } from "@/lib/game-store";
+import { createGame } from "@/lib/redis-game-store";
 
 export async function POST() {
   const game = createGame();
