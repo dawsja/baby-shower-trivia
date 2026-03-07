@@ -57,10 +57,7 @@ export default function Home() {
           </div>
           <p className="text-xs font-bold tracking-[0.28em] text-sky-100">BABY SHOWER QUIZ</p>
           <h1 className="mt-2 text-4xl font-black tracking-wide text-white">Bailey&apos;s Baby Shower Trivia</h1>
-          <p className="mt-2 flex items-center justify-center gap-1.5 text-sm text-sky-100">
-            <Sparkles className="h-3.5 w-3.5" />
-            Join the game, answer fast, and climb the leaderboard.
-          </p>
+          <p className="mt-2 text-sm text-sky-100">Join the game, answer fast, and climb the leaderboard.</p>
         </div>
 
         <section className="card-glass space-y-4 p-5">
