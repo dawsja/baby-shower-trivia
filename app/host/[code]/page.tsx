@@ -7,6 +7,7 @@ import { Monitor, Play, Users, HelpCircle, Clock, CheckCircle2, Eye, RotateCcw, 
 import { LeaderboardPanel } from "@/components/leaderboard-panel";
 import { Scoreboard } from "@/components/scoreboard";
 import { HostMusic } from "@/components/host-music";
+import { WaitingMusic } from "@/components/waiting-music";
 import { HowToJoinModal } from "@/components/how-to-join-modal";
 import type { PublicGameState } from "@/lib/types";
 
@@ -201,6 +202,11 @@ export default function HostRoomPage() {
       <HostMusic 
         isPlaying={state?.phase === "question_active"} 
         volume={0.15} 
+      />
+      {/* Play upbeat waiting jingle while the How to Join modal is open */}
+      <WaitingMusic
+        isPlaying={showHowToJoin}
+        volume={0.15}
       />
       
       <div className="relative z-10 mx-auto w-full max-w-3xl space-y-4">
