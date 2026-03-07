@@ -29,6 +29,13 @@ export async function GET(request: NextRequest) {
         }
       };
 
+      // Tell the client to reconnect after 1 second if the connection drops
+      try {
+        controller.enqueue(encoder.encode("retry: 1000\n\n"));
+      } catch {
+        // controller may already be closed
+      }
+
       // Send initial state immediately
       try {
         const state = await getGameState(code, playerId, hostKey);
@@ -38,6 +45,16 @@ export async function GET(request: NextRequest) {
         controller.close();
         return;
       }
+
+      // Send periodic heartbeat pings to keep the connection alive through
+      // proxies and load balancers that close idle connections after ~60 s.
+      const heartbeatInterval = setInterval(() => {
+        try {
+          controller.enqueue(encoder.encode(":ping\n\n"));
+        } catch {
+          // controller may already be closed
+        }
+      }, 25_000);
 
       // Create a dedicated subscriber connection (pub/sub requires its own client)
       subscriber = createClient({
@@ -73,6 +90,8 @@ export async function GET(request: NextRequest) {
       const cleanup = async () => {
         if (cleanedUp) return;
         cleanedUp = true;
+
+        clearInterval(heartbeatInterval);
 
         if (subscriber) {
           try {

@@ -86,10 +86,15 @@ export default function GameRoomPage() {
     const url = `/api/game-events?code=${code}&playerId=${encodeURIComponent(playerId)}`;
     const es = new EventSource(url);
 
+    es.onopen = () => {
+      setError(null);
+    };
+
     es.onmessage = (event) => {
       try {
         const payload = JSON.parse(event.data as string) as { state?: PublicGameState; error?: string };
         if (payload.state) {
+          setError(null);
           setState(payload.state);
         } else if (payload.error) {
           setError(payload.error);
@@ -100,8 +105,8 @@ export default function GameRoomPage() {
     };
 
     es.onerror = () => {
-      setError("Lost connection");
-      es.close();
+      setError("Reconnecting...");
+      // Don't close — EventSource will reconnect automatically
     };
 
     return () => es.close();
