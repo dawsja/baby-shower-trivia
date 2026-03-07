@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 type HostMusicProps = {
   isPlaying: boolean;
@@ -60,27 +60,19 @@ export function HostMusic({ isPlaying, volume = 0.15 }: HostMusicProps) {
   const gainRef = useRef<GainNode | null>(null);
   const activeRef = useRef(false);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [audioBlocked, setAudioBlocked] = useState(false);
 
-  const ensureContext = useCallback(() => {
+  const ensureContext = useCallback(async () => {
     if (!ctxRef.current || ctxRef.current.state === "closed") {
       ctxRef.current = new AudioContext();
     }
     if (ctxRef.current.state === "suspended") {
-      ctxRef.current.resume();
+      await ctxRef.current.resume().catch((err) => {
+        console.debug("AudioContext resume blocked (autoplay policy):", err);
+      });
     }
     return ctxRef.current;
   }, []);
-
-  // Unlock AudioContext on first user interaction
-  useEffect(() => {
-    const unlock = () => ensureContext();
-    document.addEventListener("click", unlock, { once: true });
-    document.addEventListener("touchstart", unlock, { once: true });
-    return () => {
-      document.removeEventListener("click", unlock);
-      document.removeEventListener("touchstart", unlock);
-    };
-  }, [ensureContext]);
 
   // Schedule one full loop of the melody
   const scheduleLoop = useCallback((ctx: AudioContext, master: GainNode) => {
@@ -130,23 +122,38 @@ export function HostMusic({ isPlaying, volume = 0.15 }: HostMusicProps) {
       if (gainRef.current && ctxRef.current && ctxRef.current.state === "running") {
         gainRef.current.gain.linearRampToValueAtTime(0, ctxRef.current.currentTime + 0.4);
       }
+      setAudioBlocked(false);
       return;
     }
 
-    const ctx = ensureContext();
-    const master = ctx.createGain();
-    master.gain.value = volume;
-    master.connect(ctx.destination);
-    gainRef.current = master;
     activeRef.current = true;
 
-    function loop() {
-      if (!activeRef.current) return;
-      scheduleLoop(ctx, master);
-      timeoutRef.current = setTimeout(loop, (LOOP_DURATION_S - 0.1) * 1000);
-    }
+    (async () => {
+      const ctx = await ensureContext();
 
-    loop();
+      // Effect was cleaned up while we were awaiting (e.g. isPlaying changed)
+      if (!activeRef.current) return;
+
+      // Browser blocked audio — no user gesture has occurred yet
+      if (ctx.state !== "running") {
+        setAudioBlocked(true);
+        return;
+      }
+
+      setAudioBlocked(false);
+      const master = ctx.createGain();
+      master.gain.value = volume;
+      master.connect(ctx.destination);
+      gainRef.current = master;
+
+      function loop() {
+        if (!activeRef.current) return;
+        scheduleLoop(ctx, master);
+        timeoutRef.current = setTimeout(loop, (LOOP_DURATION_S - 0.1) * 1000);
+      }
+
+      loop();
+    })();
 
     return () => {
       activeRef.current = false;
@@ -154,12 +161,20 @@ export function HostMusic({ isPlaying, volume = 0.15 }: HostMusicProps) {
         clearTimeout(timeoutRef.current);
         timeoutRef.current = null;
       }
-      master.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.4);
-      setTimeout(() => {
-        try { master.disconnect(); } catch {}
-      }, 500);
+      if (gainRef.current && ctxRef.current && ctxRef.current.state === "running") {
+        const g = gainRef.current;
+        const t = ctxRef.current.currentTime;
+        g.gain.linearRampToValueAtTime(0, t + 0.4);
+        setTimeout(() => {
+          try { g.disconnect(); } catch {}
+        }, 500);
+      }
     };
-  }, [isPlaying, volume, ensureContext, scheduleLoop]);
+    // audioBlocked is intentionally in the dep array: when the user clicks the
+    // "enable sound" overlay it flips to false, which re-triggers this effect
+    // so music starts immediately without any additional state change.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isPlaying, volume, ensureContext, scheduleLoop, audioBlocked]);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -169,6 +184,23 @@ export function HostMusic({ isPlaying, volume = 0.15 }: HostMusicProps) {
       ctxRef.current?.close().catch(() => {});
     };
   }, []);
+
+  if (audioBlocked && isPlaying) {
+    return (
+      <div
+        className="fixed inset-0 z-50 flex cursor-pointer items-center justify-center bg-black/60"
+        onClick={async () => {
+          await ensureContext();
+          setAudioBlocked(false);
+        }}
+      >
+        <div className="rounded-2xl bg-white/20 px-8 py-6 text-center backdrop-blur-sm">
+          <p className="text-3xl">🔊</p>
+          <p className="mt-2 text-xl font-bold text-white">Click anywhere to enable sound</p>
+        </div>
+      </div>
+    );
+  }
 
   return null;
 }
