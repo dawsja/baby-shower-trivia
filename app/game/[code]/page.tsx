@@ -304,13 +304,13 @@ export default function GameRoomPage() {
             <Hash className="h-3 w-3" />
             ROOM CODE
           </p>
-          <p className="text-3xl font-black tracking-[0.2em] text-white">{code}</p>
+          <p className="text-3xl font-black tracking-[0.2em] text-slate-800">{code}</p>
         </header>
 
         {!playerId && (
           <>
             <JoinForm onSubmit={handleJoin} initialName={initialName} initialAvatar={initialAvatar} />
-            {busy && <p className="text-center text-sm text-sky-100">Joining game...</p>}
+            {busy && <p className="text-center text-sm text-sky-700">Joining game...</p>}
           </>
         )}
 
@@ -336,7 +336,7 @@ export default function GameRoomPage() {
             />
 
             {state.hasAnswered && (
-              <div className="card-glass flex items-center justify-center gap-2 p-3 text-center text-sm font-semibold text-sky-100">
+              <div className="card-glass flex items-center justify-center gap-2 p-3 text-center text-sm font-semibold text-sky-700">
                 <Lock className="h-3.5 w-3.5" />
                 Answer locked in.
               </div>
@@ -350,18 +350,18 @@ export default function GameRoomPage() {
               <Eye className="h-3.5 w-3.5" />
               ANSWER REVEAL
             </p>
-            <h2 className="mt-2 text-xl font-bold text-white">{state.question.text}</h2>
-            <p className="mt-4 flex items-center gap-2 rounded-2xl border border-emerald-400/40 bg-emerald-400/15 px-4 py-3 font-semibold text-white">
-              <CheckCircle2 className="h-4 w-4 text-emerald-300" />
+            <h2 className="mt-2 text-xl font-bold text-slate-800">{state.question.text}</h2>
+            <p className="mt-4 flex items-center gap-2 rounded-2xl border border-emerald-400/40 bg-emerald-400/15 px-4 py-3 font-semibold text-slate-800">
+              <CheckCircle2 className="h-4 w-4 text-emerald-600" />
               Correct answer: {state.reveal.correctOption}
             </p>
-            <p className="mt-3 flex items-center gap-1.5 text-sm text-sky-100">
+            <p className="mt-3 flex items-center gap-1.5 text-sm text-slate-600">
               {state.yourAnswerCorrect ? (
-                <><CheckCircle2 className="h-3.5 w-3.5 text-emerald-300" /> Correct! Nice one.</>
+                <><CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" /> Correct! Nice one.</>
               ) : state.yourAnswerIndex === null ? (
-                <><Clock className="h-3.5 w-3.5 text-amber-300" /> No answer submitted in time.</>
+                <><Clock className="h-3.5 w-3.5 text-amber-500" /> No answer submitted in time.</>
               ) : (
-                <><XCircle className="h-3.5 w-3.5 text-red-300" /> Not this one. You&apos;ll get the next one.</>
+                <><XCircle className="h-3.5 w-3.5 text-red-500" /> Not this one. You&apos;ll get the next one.</>
               )}
             </p>
           </div>
@@ -381,7 +381,7 @@ export default function GameRoomPage() {
               <XCircle className="h-3.5 w-3.5 text-red-300" />
               GAME CANCELLED
             </p>
-            <p className="mt-2 text-lg font-bold text-white">The game was cancelled.</p>
+            <p className="mt-2 text-lg font-bold text-slate-800">The game was cancelled.</p>
             <button
               onClick={() => {
                 window.localStorage.removeItem(keyForPlayer(code));
@@ -397,7 +397,7 @@ export default function GameRoomPage() {
 
         {playerId && state && <Scoreboard players={state.leaderboard} activePlayerId={playerId} compact />}
 
-        {error && <p className="text-center text-sm font-semibold text-red-100">{error}</p>}
+        {error && <p className="text-center text-sm font-semibold text-red-600">{error}</p>}
       </div>
     </main>
   );

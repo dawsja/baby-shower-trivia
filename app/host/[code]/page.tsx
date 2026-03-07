@@ -207,8 +207,8 @@ export default function HostRoomPage() {
             <Monitor className="h-3.5 w-3.5" />
             HOST SCREEN
           </p>
-          <p className="mt-1 text-4xl font-black tracking-[0.2em] text-white">{code}</p>
-          <p className="mt-1 text-sm text-sky-100">Show this on TV. Guests answer on their phones.</p>
+          <p className="mt-1 text-4xl font-black tracking-[0.2em] text-slate-800">{code}</p>
+          <p className="mt-1 text-sm text-slate-600">Show this on TV. Guests answer on their phones.</p>
         </header>
 
         {state?.phase === "waiting" && (
@@ -217,7 +217,7 @@ export default function HostRoomPage() {
               <Users className="h-3.5 w-3.5" />
               LOBBY
             </p>
-            <p className="mt-1 text-2xl font-black text-white">Players joined: {state.players.length}</p>
+            <p className="mt-1 text-2xl font-black text-slate-800">Players joined: {state.players.length}</p>
             <button onClick={startGame} disabled={busy} className="btn-primary mt-5 w-full">
               <Play className="h-4 w-4" />
               {busy ? "Starting..." : "Start Game"}
@@ -227,7 +227,7 @@ export default function HostRoomPage() {
 
         {state?.phase === "question_active" && state.question && (
           <div className="card-glass p-5">
-            <div className="flex items-center justify-between text-sm font-semibold text-sky-100">
+            <div className="flex items-center justify-between text-sm font-semibold text-sky-700">
               <span className="flex items-center gap-1.5">
                 <HelpCircle className="h-4 w-4" />
                 Question {state.currentQuestionIndex + 1}/{state.totalQuestions}
@@ -237,12 +237,12 @@ export default function HostRoomPage() {
                 {Math.max(1, Math.ceil(displayTimeMs / 1000))}s
               </span>
             </div>
-            <h2 className="mt-3 text-3xl font-black text-white">{state.question.text}</h2>
+            <h2 className="mt-3 text-3xl font-black text-slate-800">{state.question.text}</h2>
             <div className="mt-4 grid gap-2">
               {state.question.options.map((option, index) => (
                 <div
                   key={option}
-                  className="rounded-2xl border border-white/30 bg-white/10 px-4 py-3 text-lg font-semibold text-white"
+                  className="rounded-2xl border border-sky-200 bg-sky-50 px-4 py-3 text-lg font-semibold text-slate-800"
                 >
                   {String.fromCharCode(65 + index)}. {option}
                 </div>
@@ -257,12 +257,12 @@ export default function HostRoomPage() {
               <Eye className="h-3.5 w-3.5" />
               ANSWER REVEAL
             </p>
-            <h2 className="mt-2 text-2xl font-black text-white">{state.question.text}</h2>
-            <p className="mt-3 flex items-center gap-2 rounded-2xl border border-emerald-400/40 bg-emerald-400/15 px-4 py-3 text-xl font-black text-white">
-              <CheckCircle2 className="h-5 w-5 text-emerald-300" />
+            <h2 className="mt-2 text-2xl font-black text-slate-800">{state.question.text}</h2>
+            <p className="mt-3 flex items-center gap-2 rounded-2xl border border-emerald-400/40 bg-emerald-400/15 px-4 py-3 text-xl font-black text-slate-800">
+              <CheckCircle2 className="h-5 w-5 text-emerald-600" />
               Correct: {state.reveal.correctOption}
             </p>
-            <p className="mt-2 text-sm font-semibold text-sky-100">
+            <p className="mt-2 text-sm font-semibold text-slate-600">
               Correct players: {state.reveal.correctPlayerIds.length}/{state.players.length}
             </p>
           </div>
@@ -295,7 +295,7 @@ export default function HostRoomPage() {
               <XCircle className="h-3.5 w-3.5 text-red-300" />
               GAME CANCELLED
             </p>
-            <p className="mt-1 text-xl font-bold text-white">All players left the game.</p>
+            <p className="mt-1 text-xl font-bold text-slate-800">All players left the game.</p>
             <div className="mt-4 flex flex-col gap-3">
               <button onClick={playAgain} disabled={busy} className="btn-primary w-full">
                 <RotateCcw className="h-4 w-4" />
@@ -311,8 +311,8 @@ export default function HostRoomPage() {
 
         {state && <Scoreboard players={state.leaderboard} activePlayerId={null} />}
 
-        {!hostKey && <p className="text-center text-sm font-semibold text-red-100">Missing host key in URL.</p>}
-        {error && <p className="text-center text-sm font-semibold text-red-100">{error}</p>}
+        {!hostKey && <p className="text-center text-sm font-semibold text-red-600">Missing host key in URL.</p>}
+        {error && <p className="text-center text-sm font-semibold text-red-600">{error}</p>}
       </div>
     </main>
   );
