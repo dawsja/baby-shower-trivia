@@ -13,7 +13,7 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "Room code is required" }, { status: 400 });
     }
 
-    const state = getGameState(code, playerId, hostKey);
+    const state = await getGameState(code, playerId, hostKey);
     return NextResponse.json({ state });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Could not load game state";

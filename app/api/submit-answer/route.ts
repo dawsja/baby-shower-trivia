@@ -17,7 +17,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const state = submitAnswer(body.code, body.playerId, body.optionIndex);
+    const state = await submitAnswer(body.code, body.playerId, body.optionIndex);
     return NextResponse.json({ state });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Could not submit answer";

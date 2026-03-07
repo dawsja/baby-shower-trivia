@@ -13,7 +13,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Code and hostKey are required" }, { status: 400 });
     }
 
-    const state = goToNextQuestion(body.code, body.hostKey);
+    const state = await goToNextQuestion(body.code, body.hostKey);
     return NextResponse.json({ state });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Could not move to next question";
