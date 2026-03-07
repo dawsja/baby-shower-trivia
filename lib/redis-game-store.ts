@@ -148,12 +148,12 @@ async function getRoomOrThrow(code: string): Promise<GameRoom> {
   
   // Check if room is expired
   if (now() - room.updatedAt > ROOM_TTL_MS) {
-    await redis.del(`game:${code}`);
+    await redis.del(`game:${code.toUpperCase()}`);
     throw new Error("Game room not found");
   }
   
   const phaseChanged = tickRoom(room);
-  await redis.set(`game:${code}`, JSON.stringify(room), { EX: Math.floor(ROOM_TTL_MS / 1000) });
+  await redis.set(`game:${code.toUpperCase()}`, JSON.stringify(room), { EX: Math.floor(ROOM_TTL_MS / 1000) });
 
   if (phaseChanged) {
     await publishGameUpdate(code);
@@ -171,9 +171,11 @@ function buildPublicState(room: GameRoom, playerId: string | null, hostKey?: str
   const timeRemainingMs =
     room.phase === "question_active" && room.questionStartedAt
       ? Math.max(0, QUESTION_DURATION_MS - (now() - room.questionStartedAt))
-      : room.phase === "leaderboard" && room.leaderboardStartedAt
-        ? Math.max(0, LEADERBOARD_DURATION_MS - (now() - room.leaderboardStartedAt))
-        : 0;
+      : room.phase === "revealing" && room.revealStartedAt
+        ? Math.max(0, REVEAL_DURATION_MS - (now() - room.revealStartedAt))
+        : room.phase === "leaderboard" && room.leaderboardStartedAt
+          ? Math.max(0, LEADERBOARD_DURATION_MS - (now() - room.leaderboardStartedAt))
+          : 0;
 
   const reveal =
     (room.phase === "revealing" || room.phase === "leaderboard" || room.phase === "finished") &&
@@ -230,7 +232,7 @@ export async function createGame() {
     updatedAt: timestamp,
   };
 
-  await redis.set(`game:${code}`, JSON.stringify(room), { EX: Math.floor(ROOM_TTL_MS / 1000) });
+  await redis.set(`game:${code.toUpperCase()}`, JSON.stringify(room), { EX: Math.floor(ROOM_TTL_MS / 1000) });
   return { code, hostKey };
 }
 
@@ -258,7 +260,7 @@ export async function joinGame(code: string, name: string, avatar?: string) {
   room.players.push(player);
   room.updatedAt = now();
 
-  await redis.set(`game:${code}`, JSON.stringify(room), { EX: Math.floor(ROOM_TTL_MS / 1000) });
+  await redis.set(`game:${code.toUpperCase()}`, JSON.stringify(room), { EX: Math.floor(ROOM_TTL_MS / 1000) });
   await publishGameUpdate(code);
 
   return {
@@ -295,7 +297,7 @@ export async function startGame(code: string, hostKey: string) {
   room.leaderboardStartedAt = null;
   room.updatedAt = now();
 
-  await redis.set(`game:${code}`, JSON.stringify(room), { EX: Math.floor(ROOM_TTL_MS / 1000) });
+  await redis.set(`game:${code.toUpperCase()}`, JSON.stringify(room), { EX: Math.floor(ROOM_TTL_MS / 1000) });
   await publishGameUpdate(code);
   return buildPublicState(room, null, hostKey);
 }
@@ -351,7 +353,7 @@ export async function submitAnswer(code: string, playerId: string, optionIndex: 
   room.updatedAt = now();
   tickRoom(room);
 
-  await redis.set(`game:${code}`, JSON.stringify(room), { EX: Math.floor(ROOM_TTL_MS / 1000) });
+  await redis.set(`game:${code.toUpperCase()}`, JSON.stringify(room), { EX: Math.floor(ROOM_TTL_MS / 1000) });
   await publishGameUpdate(code);
   return buildPublicState(room, playerId);
 }
@@ -423,7 +425,7 @@ export async function goToNextQuestion(code: string, hostKey: string) {
   if (room.currentQuestionIndex >= room.questions.length - 1) {
     room.phase = "finished";
     room.updatedAt = now();
-    await redis.set(`game:${code}`, JSON.stringify(room), { EX: Math.floor(ROOM_TTL_MS / 1000) });
+    await redis.set(`game:${code.toUpperCase()}`, JSON.stringify(room), { EX: Math.floor(ROOM_TTL_MS / 1000) });
     await publishGameUpdate(code);
     return buildPublicState(room, null, hostKey);
   }
@@ -436,7 +438,7 @@ export async function goToNextQuestion(code: string, hostKey: string) {
   room.leaderboardStartedAt = null;
   room.updatedAt = now();
 
-  await redis.set(`game:${code}`, JSON.stringify(room), { EX: Math.floor(ROOM_TTL_MS / 1000) });
+  await redis.set(`game:${code.toUpperCase()}`, JSON.stringify(room), { EX: Math.floor(ROOM_TTL_MS / 1000) });
   await publishGameUpdate(code);
   return buildPublicState(room, null, hostKey);
 }
