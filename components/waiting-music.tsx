@@ -7,54 +7,54 @@ type WaitingMusicProps = {
   volume?: number;
 };
 
-// Happy, upbeat baby-shower waiting jingle — bright and fun
-// Uses C major for cheerful, welcoming warmth (vs the tense countdown melody)
+// Gentle, happy waiting-lobby jingle — warm and unhurried
+// Uses C major for cheerful, welcoming warmth; slow tempo for a calm lobby feel
 const MELODY = [
-  // Opening fanfare — happy ascending arpeggio
-  { note: 523.25, dur: 0.10 }, // C5
-  { note: 0,      dur: 0.04 }, // rest
-  { note: 659.25, dur: 0.10 }, // E5
-  { note: 0,      dur: 0.04 }, // rest
-  { note: 783.99, dur: 0.10 }, // G5
-  { note: 0,      dur: 0.04 }, // rest
-  { note: 1046.50, dur: 0.20 }, // C6 — big happy leap!
-  { note: 0,       dur: 0.12 }, // rest
-
-  // Bouncy stepwise dance phrase
-  { note: 783.99, dur: 0.10 }, // G5
-  { note: 880.00, dur: 0.10 }, // A5
-  { note: 783.99, dur: 0.10 }, // G5
-  { note: 659.25, dur: 0.10 }, // E5
-  { note: 0,      dur: 0.06 }, // rest
-  { note: 587.33, dur: 0.10 }, // D5
-  { note: 659.25, dur: 0.10 }, // E5
-  { note: 523.25, dur: 0.18 }, // C5 (hold)
-  { note: 0,      dur: 0.12 }, // rest
-
-  // Playful skip phrase
-  { note: 659.25, dur: 0.10 }, // E5
-  { note: 0,      dur: 0.04 }, // rest
-  { note: 783.99, dur: 0.10 }, // G5
-  { note: 0,      dur: 0.04 }, // rest
-  { note: 659.25, dur: 0.08 }, // E5
-  { note: 783.99, dur: 0.08 }, // G5
-  { note: 1046.50, dur: 0.18 }, // C6 (hold)
-  { note: 0,       dur: 0.12 }, // rest
-
-  // Twirling descent
-  { note: 880.00, dur: 0.10 }, // A5
-  { note: 783.99, dur: 0.10 }, // G5
-  { note: 659.25, dur: 0.10 }, // E5
-  { note: 523.25, dur: 0.10 }, // C5
+  // Gentle opening — slow ascending arpeggio
+  { note: 523.25, dur: 0.22 }, // C5
   { note: 0,      dur: 0.10 }, // rest
+  { note: 659.25, dur: 0.22 }, // E5
+  { note: 0,      dur: 0.10 }, // rest
+  { note: 783.99, dur: 0.22 }, // G5
+  { note: 0,      dur: 0.10 }, // rest
+  { note: 1046.50, dur: 0.44 }, // C6 — warm high note, held
+  { note: 0,       dur: 0.28 }, // rest
 
-  // Happy sign-off
-  { note: 523.25, dur: 0.10 }, // C5
-  { note: 659.25, dur: 0.10 }, // E5
-  { note: 783.99, dur: 0.10 }, // G5
-  { note: 659.25, dur: 0.10 }, // E5
-  { note: 783.99, dur: 0.22 }, // G5 (triumphant hold)
-  { note: 0,      dur: 0.20 }, // rest before loop
+  // Relaxed stepwise phrase
+  { note: 783.99, dur: 0.22 }, // G5
+  { note: 880.00, dur: 0.22 }, // A5
+  { note: 783.99, dur: 0.22 }, // G5
+  { note: 659.25, dur: 0.22 }, // E5
+  { note: 0,      dur: 0.14 }, // rest
+  { note: 587.33, dur: 0.22 }, // D5
+  { note: 659.25, dur: 0.22 }, // E5
+  { note: 523.25, dur: 0.40 }, // C5 (long hold)
+  { note: 0,      dur: 0.28 }, // rest
+
+  // Soft skip phrase
+  { note: 659.25, dur: 0.22 }, // E5
+  { note: 0,      dur: 0.10 }, // rest
+  { note: 783.99, dur: 0.22 }, // G5
+  { note: 0,      dur: 0.10 }, // rest
+  { note: 659.25, dur: 0.18 }, // E5
+  { note: 783.99, dur: 0.18 }, // G5
+  { note: 1046.50, dur: 0.40 }, // C6 (long hold)
+  { note: 0,       dur: 0.28 }, // rest
+
+  // Calm descent
+  { note: 880.00, dur: 0.22 }, // A5
+  { note: 783.99, dur: 0.22 }, // G5
+  { note: 659.25, dur: 0.22 }, // E5
+  { note: 523.25, dur: 0.22 }, // C5
+  { note: 0,      dur: 0.22 }, // rest
+
+  // Gentle sign-off
+  { note: 523.25, dur: 0.22 }, // C5
+  { note: 659.25, dur: 0.22 }, // E5
+  { note: 783.99, dur: 0.22 }, // G5
+  { note: 659.25, dur: 0.22 }, // E5
+  { note: 783.99, dur: 0.48 }, // G5 (warm hold)
+  { note: 0,      dur: 0.44 }, // rest before loop
 ];
 
 const LOOP_DURATION_S = MELODY.reduce((sum, s) => sum + s.dur, 0);
