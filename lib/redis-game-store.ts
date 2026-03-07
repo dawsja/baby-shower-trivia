@@ -378,7 +378,10 @@ export async function endGame(code: string, hostKey: string) {
     throw new Error("Only the host can end the game");
   }
 
-  await redis.del(`game:${code.toUpperCase()}`);
+  room.phase = "cancelled";
+  room.updatedAt = now();
+
+  await redis.set(`game:${code.toUpperCase()}`, JSON.stringify(room), { EX: 60 });
 }
 
 export async function goToNextQuestion(code: string, hostKey: string) {

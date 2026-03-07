@@ -345,7 +345,8 @@ export function endGame(code: string, hostKey: string) {
     throw new Error("Only the host can end the game");
   }
 
-  rooms.delete(code.toUpperCase());
+  room.phase = "cancelled";
+  room.updatedAt = now();
 }
 
 export function goToNextQuestion(code: string, hostKey: string) {
