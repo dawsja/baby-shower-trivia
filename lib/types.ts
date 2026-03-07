@@ -3,7 +3,8 @@ export type GamePhase =
   | "question_active"
   | "revealing"
   | "leaderboard"
-  | "finished";
+  | "finished"
+  | "cancelled";
 
 export type Player = {
   id: string;

@@ -1,8 +1,8 @@
 "use client";
 
-import { useParams, useSearchParams } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Hash, Eye, CheckCircle2, XCircle, Clock, Lock } from "lucide-react";
+import { Hash, Eye, CheckCircle2, XCircle, Clock, Lock, LogOut } from "lucide-react";
 
 import { ConfettiBurst } from "@/components/confetti-burst";
 import { JoinForm } from "@/components/join-form";
@@ -29,6 +29,7 @@ function keyForPlayer(code: string) {
 export default function GameRoomPage() {
   const params = useParams<{ code: string }>();
   const searchParams = useSearchParams();
+  const router = useRouter();
   const code = useMemo(() => params.code.toUpperCase(), [params.code]);
 
   const [playerId, setPlayerId] = useState<string | null>(null);
@@ -175,6 +176,24 @@ export default function GameRoomPage() {
     setState(data.state);
   }
 
+  async function leaveGame() {
+    if (!playerId) return;
+
+    try {
+      await fetch("/api/leave-game", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code, playerId }),
+      });
+    } catch (err) {
+      // ignore errors — navigate home regardless
+      console.error("leaveGame error:", err);
+    }
+
+    window.localStorage.removeItem(keyForPlayer(code));
+    router.push("/");
+  }
+
   async function submitAnswer(optionIndex: number) {
     if (!state || state.hasAnswered || state.phase !== "question_active") {
       return;
@@ -208,7 +227,13 @@ export default function GameRoomPage() {
         )}
 
         {playerId && state && state.phase === "waiting" && (
-          <LobbyPanel code={state.code} players={state.players} />
+          <>
+            <LobbyPanel code={state.code} players={state.players} />
+            <button onClick={leaveGame} className="btn-secondary w-full">
+              <LogOut className="h-4 w-4" />
+              Leave Game
+            </button>
+          </>
         )}
 
         {playerId && state && state.phase === "question_active" && state.question && (
@@ -260,6 +285,26 @@ export default function GameRoomPage() {
             phase={state.phase}
             autoAdvanceSeconds={Math.max(1, Math.ceil(state.timeRemainingMs / 1000))}
           />
+        )}
+
+        {playerId && state?.phase === "cancelled" && (
+          <div className="card-glass p-5 text-center">
+            <p className="label-row justify-center text-xs tracking-widest">
+              <XCircle className="h-3.5 w-3.5 text-red-300" />
+              GAME CANCELLED
+            </p>
+            <p className="mt-2 text-lg font-bold text-white">The game was cancelled.</p>
+            <button
+              onClick={() => {
+                window.localStorage.removeItem(keyForPlayer(code));
+                router.push("/");
+              }}
+              className="btn-secondary mt-4 w-full"
+            >
+              <LogOut className="h-4 w-4" />
+              Return Home
+            </button>
+          </div>
         )}
 
         {playerId && state && <Scoreboard players={state.leaderboard} activePlayerId={playerId} compact />}
