@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Fredoka, Nunito } from "next/font/google";
+import { BearWatermark } from "@/components/bear-watermark";
 import "./globals.css";
 
 const headingFont = Fredoka({
@@ -27,6 +28,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${headingFont.variable} ${bodyFont.variable} antialiased`}>
+        <BearWatermark />
         {children}
       </body>
     </html>

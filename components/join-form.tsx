@@ -1,6 +1,7 @@
 "use client";
 
 import { type FormEvent, useState } from "react";
+import { User, Smile, LogIn } from "lucide-react";
 
 const avatarOptions = ["👶", "🍼", "🧸", "🛻", "⚽", "🦕", "🎈", "🎵", "💙"];
 
@@ -32,18 +33,24 @@ export function JoinForm({ onSubmit, initialName = "", initialAvatar = "👶" }:
   return (
     <form className="card-glass space-y-5 p-5" onSubmit={handleSubmit}>
       <div>
-        <p className="text-sm font-semibold tracking-wide text-sky-100">Pick your name</p>
+        <p className="label-row">
+          <User className="h-4 w-4" />
+          Pick your name
+        </p>
         <input
           value={name}
           onChange={(event) => setName(event.target.value)}
           placeholder="Your name"
           maxLength={24}
-          className="mt-2 w-full rounded-2xl border border-sky-200/40 bg-white/90 px-4 py-3 text-base text-sky-900 outline-none transition focus:border-sky-300"
+          className="input-field mt-2"
         />
       </div>
 
       <div>
-        <p className="text-sm font-semibold tracking-wide text-sky-100">Pick an avatar</p>
+        <p className="label-row">
+          <Smile className="h-4 w-4" />
+          Pick an avatar
+        </p>
         <div className="mt-2 grid grid-cols-3 gap-2">
           {avatarOptions.map((item) => {
             const selected = item === avatar;
@@ -66,6 +73,7 @@ export function JoinForm({ onSubmit, initialName = "", initialAvatar = "👶" }:
       </div>
 
       <button type="submit" disabled={busy || !name.trim()} className="btn-primary w-full">
+        <LogIn className="h-4 w-4" />
         {busy ? "Joining..." : "Join Game"}
       </button>
     </form>

@@ -1,4 +1,5 @@
 import type { Player } from "@/lib/types";
+import { Users, CheckCircle, Copy } from "lucide-react";
 
 type LobbyPanelProps = {
   code: string;
@@ -8,19 +9,28 @@ type LobbyPanelProps = {
 export function LobbyPanel({ code, players }: LobbyPanelProps) {
   return (
     <div className="card-glass p-5">
-      <p className="text-xs font-semibold tracking-widest text-sky-100">JOIN CODE</p>
+      <p className="label-row text-xs tracking-widest">
+        <Copy className="h-3.5 w-3.5" />
+        JOIN CODE
+      </p>
       <p className="mt-1 text-4xl font-black tracking-[0.2em] text-white">{code}</p>
       <p className="mt-2 text-sm text-sky-100">Share this code so everyone can join on their phones.</p>
 
       <div className="mt-5 rounded-2xl border border-white/25 bg-white/10 p-3">
-        <p className="text-sm font-semibold text-white">Players in lobby ({players.length})</p>
+        <p className="flex items-center gap-1.5 text-sm font-semibold text-white">
+          <Users className="h-4 w-4 text-sky-200" />
+          Players in lobby ({players.length})
+        </p>
         <div className="mt-2 grid gap-2">
           {players.map((player) => (
             <div key={player.id} className="flex items-center justify-between rounded-xl bg-white/15 px-3 py-2">
               <span className="text-sm text-white">
                 {player.avatar} {player.name}
               </span>
-              <span className="text-xs text-sky-100">ready</span>
+              <span className="flex items-center gap-1 text-xs text-emerald-200">
+                <CheckCircle className="h-3 w-3" />
+                ready
+              </span>
             </div>
           ))}
         </div>

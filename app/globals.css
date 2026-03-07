@@ -86,13 +86,22 @@ h4 {
 }
 
 .btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   border-radius: 18px;
   padding: 12px 16px;
   font-weight: 800;
   color: #00315e;
   background: linear-gradient(180deg, #f8fdff, #d8efff);
-  transition: transform 120ms ease, box-shadow 120ms ease;
+  transition: transform 120ms ease, box-shadow 120ms ease, filter 120ms ease;
   box-shadow: 0 10px 22px rgba(0, 28, 57, 0.22);
+}
+
+.btn-primary:hover:not(:disabled) {
+  filter: brightness(1.04);
+  box-shadow: 0 12px 28px rgba(0, 28, 57, 0.3), 0 0 14px rgba(96, 200, 255, 0.2);
 }
 
 .btn-primary:disabled {
@@ -103,6 +112,79 @@ h4 {
   transform: translateY(1px) scale(0.995);
 }
 
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 18px;
+  padding: 12px 16px;
+  font-weight: 700;
+  color: #e0f2fe;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.12);
+  transition: transform 120ms ease, background 120ms ease;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.btn-secondary:not(:disabled):active {
+  transform: translateY(1px) scale(0.995);
+}
+
+.label-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #bae6fd;
+}
+
+.input-field {
+  width: 100%;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  background: rgba(255, 255, 255, 0.9);
+  padding: 12px 16px;
+  color: #0c4a6e;
+  outline: none;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+
+.input-field:focus {
+  border-color: #7dd3fc;
+  box-shadow: 0 0 0 3px rgba(125, 211, 252, 0.25);
+}
+
+.badge-rank {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+.badge-rank-1 {
+  background: linear-gradient(135deg, #fbbf24, #f59e0b);
+  color: #451a03;
+}
+
+.badge-rank-2 {
+  background: linear-gradient(135deg, #d1d5db, #9ca3af);
+  color: #1f2937;
+}
+
+.badge-rank-3 {
+  background: linear-gradient(135deg, #d97706, #b45309);
+  color: #fffbeb;
+}
+
 @keyframes drift {
   0%,
   100% {
@@ -111,4 +193,19 @@ h4 {
   50% {
     transform: translate(10px, -10px) scale(1.04);
   }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.35s ease-out both;
 }

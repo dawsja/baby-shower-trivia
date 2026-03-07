@@ -2,6 +2,7 @@
 
 import { useParams, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Hash, Eye, CheckCircle2, XCircle, Clock, Lock } from "lucide-react";
 
 import { ConfettiBurst } from "@/components/confetti-burst";
 import { JoinForm } from "@/components/join-form";
@@ -192,7 +193,10 @@ export default function GameRoomPage() {
 
       <div className="relative z-10 mx-auto w-full max-w-md space-y-4">
         <header className="card-glass px-4 py-3 text-center">
-          <p className="text-[11px] font-bold tracking-[0.22em] text-sky-100">ROOM CODE</p>
+          <p className="label-row justify-center text-[11px] tracking-[0.22em]">
+            <Hash className="h-3 w-3" />
+            ROOM CODE
+          </p>
           <p className="text-3xl font-black tracking-[0.2em] text-white">{code}</p>
         </header>
 
@@ -219,24 +223,33 @@ export default function GameRoomPage() {
             />
 
             {state.hasAnswered && (
-              <div className="card-glass p-3 text-center text-sm font-semibold text-sky-100">Answer locked in.</div>
+              <div className="card-glass flex items-center justify-center gap-2 p-3 text-center text-sm font-semibold text-sky-100">
+                <Lock className="h-3.5 w-3.5" />
+                Answer locked in.
+              </div>
             )}
           </>
         )}
 
         {playerId && state && state.phase === "revealing" && state.question && state.reveal && (
           <div className="card-glass p-5">
-            <p className="text-xs font-semibold tracking-widest text-sky-100">ANSWER REVEAL</p>
+            <p className="label-row text-xs tracking-widest">
+              <Eye className="h-3.5 w-3.5" />
+              ANSWER REVEAL
+            </p>
             <h2 className="mt-2 text-xl font-bold text-white">{state.question.text}</h2>
-            <p className="mt-4 rounded-2xl border border-white/45 bg-white/20 px-4 py-3 font-semibold text-white">
+            <p className="mt-4 flex items-center gap-2 rounded-2xl border border-emerald-400/40 bg-emerald-400/15 px-4 py-3 font-semibold text-white">
+              <CheckCircle2 className="h-4 w-4 text-emerald-300" />
               Correct answer: {state.reveal.correctOption}
             </p>
-            <p className="mt-3 text-sm text-sky-100">
-              {state.yourAnswerCorrect
-                ? "Correct! Nice one."
-                : state.yourAnswerIndex === null
-                  ? "No answer submitted in time."
-                  : "Not this one. You'll get the next one."}
+            <p className="mt-3 flex items-center gap-1.5 text-sm text-sky-100">
+              {state.yourAnswerCorrect ? (
+                <><CheckCircle2 className="h-3.5 w-3.5 text-emerald-300" /> Correct! Nice one.</>
+              ) : state.yourAnswerIndex === null ? (
+                <><Clock className="h-3.5 w-3.5 text-amber-300" /> No answer submitted in time.</>
+              ) : (
+                <><XCircle className="h-3.5 w-3.5 text-red-300" /> Not this one. You&apos;ll get the next one.</>
+              )}
             </p>
           </div>
         )}
