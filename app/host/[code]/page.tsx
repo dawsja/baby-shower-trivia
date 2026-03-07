@@ -227,7 +227,7 @@ export default function HostRoomPage() {
 
         {state?.phase === "question_active" && state.question && (
           <div className="card-glass p-5">
-            <div className="flex items-center justify-between text-sm font-semibold text-sky-700">
+            <div className="flex items-center justify-between text-sm font-semibold text-rose-700">
               <span className="flex items-center gap-1.5">
                 <HelpCircle className="h-4 w-4" />
                 Question {state.currentQuestionIndex + 1}/{state.totalQuestions}
@@ -242,7 +242,7 @@ export default function HostRoomPage() {
               {state.question.options.map((option, index) => (
                 <div
                   key={option}
-                  className="rounded-2xl border border-sky-200 bg-sky-50 px-4 py-3 text-lg font-semibold text-slate-800"
+                  className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-lg font-semibold text-slate-800"
                 >
                   {String.fromCharCode(65 + index)}. {option}
                 </div>

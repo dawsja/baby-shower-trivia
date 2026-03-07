@@ -11,7 +11,7 @@ type QuestionPanelProps = {
 };
 
 const letterColors = [
-  "bg-sky-100 text-sky-700",
+  "bg-rose-100 text-rose-700",
   "bg-violet-100 text-violet-700",
   "bg-amber-100 text-amber-700",
   "bg-emerald-100 text-emerald-700",
@@ -30,7 +30,7 @@ export function QuestionPanel({
 
   return (
     <div className="card-glass p-4">
-      <div className="mb-3 flex items-center justify-between text-xs font-semibold tracking-widest text-sky-700">
+      <div className="mb-3 flex items-center justify-between text-xs font-semibold tracking-widest text-rose-700">
         <span className="flex items-center gap-1.5">
           <HelpCircle className="h-3.5 w-3.5" />
           QUESTION {questionNumber}/{totalQuestions}
@@ -41,12 +41,12 @@ export function QuestionPanel({
         </span>
       </div>
 
-      <div className="mb-3 h-2 overflow-hidden rounded-full bg-sky-100">
+      <div className="mb-3 h-2 overflow-hidden rounded-full bg-rose-100">
         <div
           className={cn(
             "h-full rounded-full transition-all",
             progress > 30
-              ? "bg-gradient-to-r from-sky-400 to-cyan-300"
+              ? "bg-gradient-to-r from-rose-400 to-pink-300"
               : "bg-gradient-to-r from-amber-300 to-red-300"
           )}
           style={{ width: `${progress}%` }}
@@ -66,8 +66,8 @@ export function QuestionPanel({
               className={cn(
                 "flex items-center gap-3 rounded-2xl border px-4 py-3 text-left text-sm font-semibold transition",
                 selected
-                  ? "border-sky-500 bg-sky-500 text-white"
-                  : "border-sky-200 bg-white text-slate-700 hover:bg-sky-50"
+                  ? "border-rose-600 bg-rose-600 text-white"
+                  : "border-rose-200 bg-white/80 text-slate-700 hover:bg-rose-50"
               )}
             >
               <span className={cn("badge-rank text-[11px]", letterColors[index] ?? letterColors[0])}>

@@ -12,7 +12,7 @@ function rankBadge(index: number) {
   if (index === 0) return "badge-rank badge-rank-1";
   if (index === 1) return "badge-rank badge-rank-2";
   if (index === 2) return "badge-rank badge-rank-3";
-  return "badge-rank bg-sky-100 text-sky-700";
+  return "badge-rank bg-rose-100 text-rose-700";
 }
 
 export function Scoreboard({ players, activePlayerId, compact = false }: ScoreboardProps) {
@@ -26,7 +26,7 @@ export function Scoreboard({ players, activePlayerId, compact = false }: Scorebo
         SCOREBOARD
       </p>
       {yourPlace > 0 && (
-        <p className="mt-1 text-xs font-semibold text-sky-700">Your place: #{yourPlace}</p>
+        <p className="mt-1 text-xs font-semibold text-rose-700">Your place: #{yourPlace}</p>
       )}
       <div className="mt-3 space-y-2">
         {topFive.map((player, index) => {
@@ -36,7 +36,7 @@ export function Scoreboard({ players, activePlayerId, compact = false }: Scorebo
               key={player.id}
               className={cn(
                 "flex items-center justify-between rounded-2xl border px-3 py-2",
-                isActive ? "border-sky-400 bg-sky-100" : "border-sky-100 bg-sky-50/50"
+                isActive ? "border-rose-400 bg-rose-100" : "border-rose-100 bg-rose-50/50"
               )}
             >
               <div className="flex items-center gap-2">
