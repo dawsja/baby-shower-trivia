@@ -3,7 +3,7 @@
 import { type FormEvent, useState } from "react";
 import { User, Smile, LogIn } from "lucide-react";
 
-const avatarOptions = ["👶", "🍼", "🧸", "🛻", "⚽", "🦕", "🎈", "🎵", "💙"];
+const avatarOptions = ["👶", "🍼", "🧸", "🛻", "⚽", "🦕", "🎈", "🎵", "💙", "🩵", "🍓", "🌟", "🦢", "🐰", "🌙", "☁️", "🌈", "🧸", "🍯", "🥕", "🌸", "🦋", "🍎", "🧺", "🪀"];
 
 type JoinFormProps = {
   onSubmit: (payload: { name: string; avatar: string }) => Promise<void>;
@@ -51,7 +51,7 @@ export function JoinForm({ onSubmit, initialName = "", initialAvatar = "👶" }:
           <Smile className="h-4 w-4" />
           Pick an avatar
         </p>
-        <div className="mt-2 grid grid-cols-3 gap-2">
+        <div className="mt-2 grid grid-cols-4 gap-2">
           {avatarOptions.map((item) => {
             const selected = item === avatar;
             return (
