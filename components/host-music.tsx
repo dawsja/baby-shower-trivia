@@ -7,53 +7,46 @@ type HostMusicProps = {
   volume?: number;
 };
 
-// Tense, ticking trivia countdown melody — builds urgency
-// Uses minor/suspended intervals for that "clock is ticking" feel
-const MELODY = [
-  // Tick-tock pulse intro
-  { note: 587.33, dur: 0.15 }, // D5 (tick)
-  { note: 0, dur: 0.10 },      // rest
-  { note: 440.0, dur: 0.15 },  // A4 (tock)
-  { note: 0, dur: 0.10 },      // rest
-  { note: 587.33, dur: 0.15 }, // D5
-  { note: 0, dur: 0.10 },      // rest
-  { note: 440.0, dur: 0.15 },  // A4
-  { note: 0, dur: 0.10 },      // rest
+// Happy, bubbly elevator music (Muzak style)
+// Soft sine/triangle waves, light chords, bossa-nova-ish bass
+const BEAT = 0.45; // ~133 BPM
 
-  // Rising tension phrase
-  { note: 523.25, dur: 0.12 }, // C5
-  { note: 587.33, dur: 0.12 }, // D5
-  { note: 659.25, dur: 0.12 }, // E5
-  { note: 698.46, dur: 0.24 }, // F5 (hold)
-  { note: 0, dur: 0.08 },      // rest
+type Step = {
+  note: number;
+  bass: number;
+  chord?: number[];
+  dur: number;
+};
 
-  // Tick-tock pulse
-  { note: 659.25, dur: 0.15 }, // E5
-  { note: 0, dur: 0.10 },      // rest
-  { note: 493.88, dur: 0.15 }, // B4
-  { note: 0, dur: 0.10 },      // rest
-  { note: 659.25, dur: 0.15 }, // E5
-  { note: 0, dur: 0.10 },      // rest
-  { note: 493.88, dur: 0.15 }, // B4
-  { note: 0, dur: 0.10 },      // rest
+const SEQUENCE: Step[] = [
+  // Measure 1: Cmaj7
+  { note: 659.25, bass: 130.81, chord: [329.63, 392.00, 493.88], dur: BEAT },
+  { note: 0,      bass: 0,      chord: [329.63, 392.00, 493.88], dur: BEAT / 2 },
+  { note: 783.99, bass: 196.00,                                  dur: BEAT / 2 },
+  { note: 659.25, bass: 0,      chord: [329.63, 392.00, 493.88], dur: BEAT },
+  { note: 523.25, bass: 196.00,                                  dur: BEAT },
 
-  // Climax phrase — higher urgency
-  { note: 698.46, dur: 0.12 }, // F5
-  { note: 783.99, dur: 0.12 }, // G5
-  { note: 880.0, dur: 0.12 },  // A5
-  { note: 783.99, dur: 0.12 }, // G5
-  { note: 698.46, dur: 0.24 }, // F5 (hold)
-  { note: 0, dur: 0.08 },      // rest
+  // Measure 2: Dmin7
+  { note: 698.46, bass: 146.83, chord: [349.23, 440.00, 523.25], dur: BEAT },
+  { note: 0,      bass: 0,      chord: [349.23, 440.00, 523.25], dur: BEAT / 2 },
+  { note: 880.00, bass: 220.00,                                  dur: BEAT / 2 },
+  { note: 698.46, bass: 0,      chord: [349.23, 440.00, 523.25], dur: BEAT },
+  { note: 587.33, bass: 220.00,                                  dur: BEAT },
 
-  // Descending resolve
-  { note: 659.25, dur: 0.12 }, // E5
-  { note: 587.33, dur: 0.12 }, // D5
-  { note: 523.25, dur: 0.12 }, // C5
-  { note: 493.88, dur: 0.30 }, // B4 (sustained)
-  { note: 0, dur: 0.30 },      // rest before loop
+  // Measure 3: G7
+  { note: 783.99, bass: 98.00,  chord: [349.23, 392.00, 493.88], dur: BEAT },
+  { note: 0,      bass: 0,      chord: [349.23, 392.00, 493.88], dur: BEAT / 2 },
+  { note: 698.46, bass: 146.83,                                  dur: BEAT / 2 },
+  { note: 587.33, bass: 0,      chord: [349.23, 392.00, 493.88], dur: BEAT },
+  { note: 493.88, bass: 146.83,                                  dur: BEAT },
+
+  // Measure 4: Cmaj7
+  { note: 523.25, bass: 130.81, chord: [329.63, 392.00, 493.88], dur: BEAT * 2 },
+  { note: 0,      bass: 196.00,                                  dur: BEAT },
+  { note: 0,      bass: 130.81, chord: [329.63, 392.00, 493.88], dur: BEAT },
 ];
 
-const LOOP_DURATION_S = MELODY.reduce((sum, s) => sum + s.dur, 0);
+const LOOP_DURATION_S = SEQUENCE.reduce((sum, s) => sum + s.dur, 0);
 
 export function HostMusic({ isPlaying, volume = 0.15 }: HostMusicProps) {
   const ctxRef = useRef<AudioContext | null>(null);
@@ -78,34 +71,54 @@ export function HostMusic({ isPlaying, volume = 0.15 }: HostMusicProps) {
   const scheduleLoop = useCallback((ctx: AudioContext, master: GainNode) => {
     let t = ctx.currentTime + 0.05;
 
-    for (const step of MELODY) {
+    for (const step of SEQUENCE) {
+      // 1. Melody (bright, bubbly)
       if (step.note > 0) {
-        // Lead — square wave for that retro game-show bite
         const osc = ctx.createOscillator();
         const env = ctx.createGain();
-        osc.type = "square";
+        osc.type = "triangle";
         osc.frequency.value = step.note;
         osc.connect(env);
         env.connect(master);
         env.gain.setValueAtTime(0.001, t);
-        env.gain.linearRampToValueAtTime(0.06, t + 0.01);
-        env.gain.exponentialRampToValueAtTime(0.001, t + step.dur);
+        env.gain.linearRampToValueAtTime(0.1, t + 0.05);
+        env.gain.exponentialRampToValueAtTime(0.001, t + step.dur * 0.8);
         osc.start(t);
-        osc.stop(t + step.dur + 0.02);
-
-        // Soft tick layer — higher octave, very quiet, adds clock feel
-        const tick = ctx.createOscillator();
-        const tickEnv = ctx.createGain();
-        tick.type = "sine";
-        tick.frequency.value = step.note * 2;
-        tick.connect(tickEnv);
-        tickEnv.connect(master);
-        tickEnv.gain.setValueAtTime(0.001, t);
-        tickEnv.gain.linearRampToValueAtTime(0.015, t + 0.005);
-        tickEnv.gain.exponentialRampToValueAtTime(0.001, t + 0.06);
-        tick.start(t);
-        tick.stop(t + 0.08);
+        osc.stop(t + step.dur);
       }
+
+      // 2. Bass (smooth, round)
+      if (step.bass > 0) {
+        const osc = ctx.createOscillator();
+        const env = ctx.createGain();
+        osc.type = "triangle";
+        osc.frequency.value = step.bass;
+        osc.connect(env);
+        env.connect(master);
+        env.gain.setValueAtTime(0.001, t);
+        env.gain.linearRampToValueAtTime(0.15, t + 0.05);
+        env.gain.exponentialRampToValueAtTime(0.001, t + step.dur * 0.9);
+        osc.start(t);
+        osc.stop(t + step.dur);
+      }
+
+      // 3. Chords (soft background pad)
+      if (step.chord) {
+        for (const freq of step.chord) {
+          const osc = ctx.createOscillator();
+          const env = ctx.createGain();
+          osc.type = "sine";
+          osc.frequency.value = freq;
+          osc.connect(env);
+          env.connect(master);
+          env.gain.setValueAtTime(0.001, t);
+          env.gain.linearRampToValueAtTime(0.04, t + 0.1);
+          env.gain.exponentialRampToValueAtTime(0.001, t + step.dur * 0.9);
+          osc.start(t);
+          osc.stop(t + step.dur);
+        }
+      }
+
       t += step.dur;
     }
   }, []);
