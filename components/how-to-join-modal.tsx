@@ -37,13 +37,13 @@ export function HowToJoinModal({ code, onClose }: HowToJoinModalProps) {
             <div>
               <p className="font-semibold text-slate-700">Open the URL on your phone</p>
               <a
-                href="https://trivia.dawson.id/"
+                href="https://trivia.zerd.cc/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="label-row mt-1 text-sm"
               >
                 <Globe className="h-3.5 w-3.5" />
-                trivia.dawson.id
+                trivia.zerd.cc
               </a>
             </div>
           </li>
