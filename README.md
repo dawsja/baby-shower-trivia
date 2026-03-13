@@ -1,113 +1,98 @@
-# Bailey's Baby Shower Trivia
+# Baby Shower Trivia
 
-A fun, interactive baby shower trivia game built with Next.js, React, and TypeScript. Host a game on a TV/tablet and let players join with their phones to answer questions and compete for the top spot on the leaderboard.
+Realtime baby shower trivia game built with Next.js 16, React 19, TypeScript, Tailwind CSS v4, and Redis.
 
-## Features
+## What It Does
 
-- **Real-time multiplayer gameplay** - Players join using a simple 5-character code
-- **Host screen** - Designed for TV/tablet display to manage the game flow
-- **Player avatars** - Choose from cute baby-themed emojis
-- **Live leaderboard** - Track scores and rankings in real-time
-- **Confetti celebrations** - Animated celebrations for winners
-- **Responsive design** - Works on mobile, tablet, and desktop devices
+- Creates a host screen with a 5-character room code
+- Lets guests join from their phones with a name and avatar
+- Runs timed multiple-choice trivia rounds with automatic reveal and leaderboard phases
+- Syncs host and player screens in realtime over Server-Sent Events backed by Redis pub/sub
+- Includes a playful baby-shower UI with music, confetti, and mobile-first layouts
 
 ## Tech Stack
 
-- **Next.js 16** - React framework with App Router
-- **React 19** - UI library
-- **TypeScript** - Type safety
-- **Tailwind CSS** - Styling
-- **Canvas Confetti** - Celebration animations
+- Next.js 16 App Router
+- React 19
+- TypeScript (`strict` mode)
+- Tailwind CSS v4
+- Redis (`redis` client)
+- Lucide React icons
 
 ## Getting Started
 
-### Prerequisites
+### 1. Install dependencies
 
-- Node.js 18+ 
-- npm or yarn
-
-### Installation
-
-1. Clone the repository:
-```bash
-git clone https://github.com/dawsja/baby-shower-game.git
-cd baby-shower-game
-```
-
-2. Install dependencies:
 ```bash
 npm install
 ```
 
-3. Start the development server:
+### 2. Configure environment variables
+
+Copy `.env.local.example` to `.env.local` and provide one of the supported Redis configurations.
+
+```bash
+cp .env.local.example .env.local
+```
+
+Supported variables:
+
+```env
+REDIS_URL=your_redis_connection_url
+REDIS_PASSWORD=your_redis_password
+
+# Or Vercel KV-style variables
+KV_REST_API_URL=your_kv_rest_api_url
+KV_REST_API_TOKEN=your_kv_rest_api_token
+KV_REST_API_READ_ONLY_TOKEN=your_kv_rest_api_read_only_token
+```
+
+### 3. Start the dev server
+
 ```bash
 npm run dev
 ```
 
-4. Open [http://localhost:3000](http://localhost:3000) in your browser
+Open `http://localhost:3000`.
 
-## How to Play
+## How To Play
 
-### For Hosts:
-1. Click "Create Game (Host Screen)" to start a new game
-2. Share the 5-character join code with players
-3. Use the host screen to manage game flow, display questions, and show results
-4. The host screen is designed for larger displays (TV/tablet) and does not submit answers
+1. Open the home page and create a game as the host.
+2. Share the room code shown on the host screen.
+3. Guests join at the home page or directly at `/game/[code]`.
+4. The host starts the game once players are in the lobby.
+5. Players answer each timed question on their phones.
+6. The app reveals the answer, updates scores, and advances through the leaderboard until the game ends.
 
-### For Players:
-1. Enter your name and choose an avatar
-2. Enter the 5-character join code provided by the host
-3. Answer questions as quickly as possible to earn more points
-4. Watch the leaderboard to see how you rank against other players
+## Available Scripts
 
-## Game Flow
-
-1. **Lobby Phase** - Players join and get ready
-2. **Question Phase** - Host displays questions, players submit answers
-3. **Scoring Phase** - Points are awarded based on speed and accuracy
-4. **Leaderboard** - Updated rankings are displayed
-5. **Celebration** - Confetti for the winner!
+- `npm run dev` - start the local development server
+- `npm run build` - create a production build
+- `npm run start` - run the production server
+- `npm run lint` - run ESLint
+- `npx tsc --noEmit` - run TypeScript type-checking
 
 ## Project Structure
 
-```
-baby-shower-game/
-├── app/                    # Next.js app router pages
-│   ├── api/               # API routes
-│   ├── game/              # Player game interface
-│   ├── host/              # Host management interface
-│   └── layout.tsx         # Root layout
-├── components/            # Reusable React components
-│   ├── confetti-burst.tsx
-│   ├── join-form.tsx
-│   ├── leaderboard-panel.tsx
-│   ├── lobby-panel.tsx
-│   ├── question-panel.tsx
-│   └── scoreboard.tsx
-├── lib/                   # Utility functions
-├── public/               # Static assets
-└── styles/               # Global styles
+```text
+app/                  Next.js routes, pages, API handlers, and global CSS
+components/           Reusable UI for host and player screens
+lib/questions.ts      Seed trivia questions
+lib/types.ts          Shared domain types
+lib/redis-game-store.ts
+                      Redis-backed game state, scoring, timers, and pub/sub
 ```
 
-## Scripts
+## Realtime Flow
 
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run start` - Start production server
-- `npm run lint` - Run ESLint
+- API routes under `app/api/*` update and read game state
+- `lib/redis-game-store.ts` owns room lifecycle, scoring, timers, and phase transitions
+- `app/api/game-events/route.ts` streams updates to connected clients with SSE
+- Host and player pages both keep a local countdown and trigger a server tick when timed phases expire
 
-## Contributing
+## Notes
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## License
-
-This project is private and not licensed for public use.
-
-## Support
-
-For questions or issues, please contact the project maintainer.
+- Redis is required for the full game flow
+- Rooms expire automatically after inactivity
+- Trivia content currently lives in `lib/questions.ts`
+- There is no dedicated test runner configured yet in this repository
